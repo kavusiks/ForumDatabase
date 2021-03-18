@@ -56,7 +56,7 @@ public class PostCtrl extends DBConn {
       System.out.println(e);
     }
   }
-
+/*
   public void FollowUp(int PostNr, Boolean Resolved, int FolderID, String post_Text, Date post_Date, Time post_Time, String CourseCode,
       String Email, String TypePost) {
 
@@ -71,7 +71,7 @@ public class PostCtrl extends DBConn {
     } catch (Exception e) {
       System.out.println(e);
     }
-  }
+  }*/
 
 
   public List<Integer> searchPosts(String courseCode, String keyword) {

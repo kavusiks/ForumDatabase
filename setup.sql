@@ -203,9 +203,7 @@ insert into UserInCourse Values("PerPaulsen@hotmail.com", "TDT4145");
 insert into Folder Values(1, "Exam", "TDT4145", null);
 insert into ViewedPost Values("OlaNordmann@gmail.com", 2);
 
-Select * from Post As p1 where p1.CourseCode='TDT4145';
-
-
-
-
-
+Select * 
+from ViewedPost as vp1 inner join (Select * 
+															from Post As p1
+                                                            where p1.CourseCode='TDT4145') on p1.PostNr = vp1.PostNr;
