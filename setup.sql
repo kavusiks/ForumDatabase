@@ -196,14 +196,59 @@ constraint viewedCourse_fk2 foreign key (CourseCode)
 insert into User values("OlaNordmann@gmail.com", "bestePassord123", "Ola", "Nordmann", "Student");
 insert into User values("PerPaulsen@hotmail.com", "bestePassord123", "Per", "Paulsen", "Instructor");
 insert into User values("KariNordmann@gmail.com", "bestePassord123", "Kari", "Nordmann", "Instructor");
-insert into User values("SiriPaulsen@hotmail.com", "bestePassord123", "Siri", "Paulsen", "Strudent");
+insert into User values("SiriPaulsen@hotmail.com", "bestePassord123", "Siri", "Paulsen", "Student");
 insert into Course Values("TDT4145", "Datamodellering og databasesystemer", "Spring", false);
-insert into UserInCourse Values("olaNordmann@gmail.com", "TDT4145");
+insert into UserInCourse Values("OlaNordmann@gmail.com", "TDT4145");
 insert into UserInCourse Values("PerPaulsen@hotmail.com", "TDT4145");
+insert into UserInCourse Values("KariNordmann@gmail.com", "TDT4145");
+insert into UserInCourse Values("SiriPaulsen@hotmail.com", "TDT4145");
+insert into Post Values(1, "Dette er første post", "2008-11-11", "13:23:44","TDT4145", "OlaNordmann@gmail.com", "StartingPost");
+insert into Post Values(2, "Dette er andre post", "2008-11-12", "13:33:44","TDT4145", "KariNordmann@gmail.com", "StartingPost");
 insert into Folder Values(1, "Exam", "TDT4145", null);
-insert into ViewedPost Values("OlaNordmann@gmail.com", 2);
+insert into StartingPost Values(1,"Første tittel", 1);
+insert into StartingPost Values(2,"Andre tittel", 1);
+insert into ViewedPost Values("KariNordmann@gmail.com", 1);
+insert into ViewedPost Values("SiriPaulsen@hotmail.com", 1);
+insert into ViewedPost Values("SiriPaulsen@hotmail.com", 2);
+insert into ViewedPost Values("PerPaulsen@hotmail.com", 1);
+insert into ViewedPost Values("PerPaulsen@hotmail.com", 2)
+;
 
-Select * 
+/* DETTE ER SÅNN VI SKREV??*/
+Select uc1.Email, count(vp1.PostNr) as ReadPost 
+from UserInCourse as uc1 left outer join (
+ViewedPost as vp1 inner join  Post as p1 on vp1.PostNr = p1.PostNr) on uc1.Email = vp1.Email
+where p1.CourseCode = "TDT4145"
+group by uc1.Email;
+
+/*READPOST*/
+Select uc1.Email, count(vp1.PostNr) as AntallReadPost
+from Post as p1 inner join (UserInCourse as uc1 left outer join ViewedPost as vp1 on uc1.Email = vp1.Email)
+where p1.CourseCode = "TDT4145"
+group by uc1.Email;
+
+/*CREATEDPOST*/
+select uc2.Email, count(p2.PostNr) as AntallCreatedPost
+from UserInCourse as uc2 left outer join Post as p2 on uc2.CourseCode=p2.CourseCode and uc2.Email = p2.Email
+where uc2.CourseCode = "TDT4145"
+group by uc2.Email;
+
+/*READPOST*/
+Select uc1.Email, count(vp1.PostNr) as AntallReadPost
+from Post as p1 inner join (UserInCourse as uc1 left outer join ViewedPost as vp1 on uc1.Email = vp1.Email)
+where p1.CourseCode = "TDT4145"
+group by uc1.Email;
+
+
+/*CREATEDPOST*/
+select uc2.Email, count(p2.PostNr) as AntallCreatedPost
+from UserInCourse as uc2 left outer join Post as p2 on uc2.CourseCode=p2.CourseCode and uc2.Email = p2.Email
+where uc2.CourseCode = "TDT4145"
+group by uc2.Email;
+
+/*where Post.CourseCode="TDT4145";
+
+/*Select * 
 from ViewedPost as vp1 inner join (Select * 
 															from Post As p1
-                                                            where p1.CourseCode='TDT4145') on p1.PostNr = vp1.PostNr;
+                                                            where p1.CourseCode='TDT4145') on p1.PostNr = vp1.PostNr;*/
