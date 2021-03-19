@@ -1,3 +1,4 @@
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.*;
 import java.sql.*;
 import java.util.Date;
@@ -5,11 +6,50 @@ import java.util.Date;
 public class PostCtrl extends DBConn {
 
   private UserAuthCtrl userAuthCtrl = new UserAuthCtrl();
-
+  private PreparedStatement statementGetPrimaryKey;
   private PreparedStatement statementPost;
   private PreparedStatement statementStartingPost;
   private PreparedStatement statementFollowUp;
   private PreparedStatement statementReplyPost;
+  private PreparedStatement statementTag;
+  private List<Integer> primaryKyes;
+
+  Calendar calendar = Calendar.getInstance();
+  Date post_Date =  new java.sql.Date(calendar.getTime().getTime());
+  Time post_Time = new java.sql.Time(calendar.getTime().getTime());
+
+
+  /*private List<Integer> getPrimaryKeys(String SQL, String PKName) {
+    primaryKyes = new ArrayList<>();
+    statementGetPrimaryKey = insert(SQL);
+    try {
+      ResultSet resultSet = statementGetPrimaryKey.executeQuery();
+      while (resultSet.next()) {
+        primaryKyes.add(resultSet.getInt(PKName));
+
+       return primaryKyes;
+      }
+
+    } catch (Exception e) {
+      System.out.println(e);
+      return null;
+    }
+  }*/
+
+  private int generatePrimaryKey(String SQL) {
+    this.statementGetPrimaryKey = insert(SQL);
+    ResultSet resultSet = null;
+    try {
+      resultSet = statementGetPrimaryKey.executeQuery();
+      if (resultSet.next()) {
+        return resultSet.getInt(1)+1;
+      }
+      return 1;
+    } catch (SQLException throwables) {
+      throwables.printStackTrace();
+      return 1;
+    }
+  }
 
 
   public PreparedStatement insert(String SQL) {
@@ -21,11 +61,10 @@ public class PostCtrl extends DBConn {
     }
   }
 
-  private void post(int PostNr, String post_Text, Date post_Date, Time post_Time, String CourseCode,
-  String Email, String TypePost) {
+  private void post(String post_Text, String CourseCode, String Email, String TypePost) {
     try {
       this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
-      this.statementPost.setInt(1, PostNr);
+      this.statementPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
       this.statementPost.setString(2, post_Text);
       this.statementPost.setDate(3, (java.sql.Date) post_Date);
       this.statementPost.setTime(4, post_Time);
@@ -44,13 +83,13 @@ public class PostCtrl extends DBConn {
   }
 
 
-  public void startingPost(int PostNr, String Title, int FolderID, String post_Text, Date post_Date, Time post_Time, String CourseCode,
+  public void startingPost( String Title, int FolderID, String post_Text, String CourseCode,
       String Email, String TypePost) {
 
-    this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "StartingPost");
+    this.post(post_Text, CourseCode, Email, "StartingPost");
     this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
     try {
-      this.statementStartingPost.setInt(1, PostNr);
+      this.statementStartingPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
       this.statementStartingPost.setString(2, Title);
       this.statementStartingPost.setInt(3, FolderID);
       this.statementStartingPost.execute();
@@ -60,14 +99,14 @@ public class PostCtrl extends DBConn {
     }
   }
 
-  public void FollowUp(int PostNr , boolean resolved, int FollowUpOn, String post_Text, Date post_Date, Time post_Time, String CourseCode,
+  public void FollowUp( boolean resolved, int FollowUpOn, String post_Text, String CourseCode,
       String Email, String TypePost) {
 
-      this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "FollowUp");
+      this.post(post_Text, CourseCode, Email, "FollowUp");
       this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
 
       try{
-        this.statementFollowUp.setInt(1, PostNr);
+        this.statementFollowUp.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
         this.statementFollowUp.setBoolean(2, resolved);
         this.statementFollowUp.setInt(3, FollowUpOn);
         this.statementFollowUp.execute();
@@ -77,14 +116,14 @@ public class PostCtrl extends DBConn {
     }
 
 
-  public void ReplyPost(int PostNr , int CommentOn, int AnswerOn, String TypeReply, String post_Text, Date post_Date, Time post_Time, String CourseCode,
+  public void ReplyPost(int PostNr , int CommentOn, int AnswerOn, String TypeReply, String post_Text, String CourseCode,
       String Email) {
 
-    this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "FollowUp");
-    this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?), (?))");
+    this.post(post_Text, CourseCode, Email, "FollowUp");
+    this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
 
     try{
-      this.statementReplyPost.setInt(1, PostNr);
+      this.statementReplyPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
       this.statementReplyPost.setInt(2, CommentOn);
       this.statementReplyPost.setInt(3, AnswerOn);
       this.statementReplyPost.setString(4, TypeReply);
@@ -93,6 +132,24 @@ public class PostCtrl extends DBConn {
       System.out.println(e);
     }
   }
+
+
+  public void TaggedStartingPost( List<String> Tag) {
+
+    this.statementTag = insert("INSERT INTO ReplyPost VALUES ((?),(?))");
+    try{
+      for (int i = 0; i < Tag.size(); i++) {
+        this.statementTag.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
+        this.statementTag.setString(2, Tag.get(0));
+        this.statementTag.execute();
+      }
+
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+  }
+
+
 
 
   public List<Integer> searchPosts(String courseCode, String keyword) {
@@ -130,8 +187,7 @@ public class PostCtrl extends DBConn {
     Time post_Time = new java.sql.Time(calendar.getTime().getTime());
     PostCtrl postCtrl = new PostCtrl();
     postCtrl.connect();
-    postCtrl.ReplyPost(21, 11, 7, "Comment", "Dette er en kommentar", post_Date, post_Time,
-        "TDT4145", "PerPaulsen@hotmail.com");
+    postCtrl.post("Dette er en post med auto pk", "TDT4145", "olaNordmann@gmail.com", "StartingPost");
   }
 
 
