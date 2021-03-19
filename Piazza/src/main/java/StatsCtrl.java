@@ -28,10 +28,13 @@ public class StatsCtrl extends DBConn {
         userType = result.getString("user_Type");
       }
       //System.out.println("userType: " +userType);
+      if(userType.equals("Instructor")) return true;
     } catch (Exception e) {
       System.out.println("db error during query for verifying user is instructor");
+      return false;
     }
-    return userType.equals("Instructor");
+    System.out.println("User is not an instructor or is not registered in the given course");
+    return false;
   }
   
   /**
@@ -61,7 +64,7 @@ public class StatsCtrl extends DBConn {
     } catch (Exception e) {
       System.out.println("db error during query for verify userInCourse");
     }
-    System.out.println("User is in not in course");
+    System.out.println("User is in not in the given course");
     return false;
   }
 
@@ -107,7 +110,7 @@ public class StatsCtrl extends DBConn {
   public static void main(String[] args) {
     StatsCtrl s = new StatsCtrl();
 
-    s.getUserStats("PerPaulsen@hotmail.com", "TDT4145");
+    s.getUserStats("PerPaulsen@gmail.com", "TDT4145");
   }
 
 }
