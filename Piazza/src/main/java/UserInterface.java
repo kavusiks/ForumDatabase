@@ -1,3 +1,6 @@
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class UserInterface {
@@ -41,13 +44,45 @@ public class UserInterface {
         return false;
     }
 
+    public void createStartingPost() {
+        System.out.println("New Post:");
+        System.out.print("Title: ");
+        final String title = inputScanner.next();
+
+        System.out.println("Choose folder: ");
+        Map<String, Integer> folders = postCtrl.getFolders(ACTIVE_COURSE_CODE);
+        Map<Integer, String> folderIndexes = new HashMap<>();
+        int i = 1;
+        for (String folderName : folders.keySet()) {
+            folderIndexes.put(i, folderName);
+            System.out.println(String.format("(%d) %s", i++, folderName));
+        }
+        System.out.print("Folder nr: ");
+        final int folderIndex = inputScanner.nextInt();
+        final int folderId = folders.get(folderIndexes.get(folderIndex));
+
+        System.out.println("Text:");
+        final String text = inputScanner.next();
+
+    }
+
+    public void searchPosts() {
+        System.out.print("Search after: ");
+        final String keyword = inputScanner.next();
+        System.out.println("Search results:");
+        System.out.println(postCtrl.searchPosts(ACTIVE_COURSE_CODE, keyword));
+    }
+
     public void chooseAction() {
-        System.out.println("Velg handling:");
-        System.out.println("(1) Søk etter innlegg");
-        System.out.print("Ditt valg: ");
+        System.out.println("Choose action:");
+        System.out.println("(1) Create post");
+        System.out.println("(2) Search in posts");
+        System.out.print("Your choice: ");
         try {
             final int action = inputScanner.nextInt();
             if (action == 1)
+                createStartingPost();
+            else if (action == 2)
                 searchPosts();
             else {
                 invalidAction();
@@ -58,20 +93,15 @@ public class UserInterface {
     }
 
     private void invalidAction() {
-        System.out.println("Ikke et gyldig valg!");
+        System.out.println("Not a valid choice!");
     }
 
-    public void searchPosts() {
-        System.out.print("Søk etter: ");
-        final String keyword = inputScanner.next();
-        System.out.println("Søkeresultat:");
-        System.out.println(postCtrl.searchPosts(ACTIVE_COURSE_CODE, keyword));
-    }
+
 
     public static void main(String[] args) {
         UserInterface userInterface = new UserInterface();
 
-        while (!userInterface.login());
+        //while (!userInterface.login());
 
         while(true) userInterface.chooseAction();
     }
