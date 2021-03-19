@@ -8,6 +8,8 @@ public class PostCtrl extends DBConn {
 
   private PreparedStatement statementPost;
   private PreparedStatement statementStartingPost;
+  private PreparedStatement statementFollowUp;
+  private PreparedStatement statementReplyPost;
 
 
   public PreparedStatement insert(String SQL) {
@@ -41,6 +43,7 @@ public class PostCtrl extends DBConn {
     }
   }
 
+
   public void startingPost(int PostNr, String Title, int FolderID, String post_Text, Date post_Date, Time post_Time, String CourseCode,
       String Email, String TypePost) {
 
@@ -56,22 +59,40 @@ public class PostCtrl extends DBConn {
       System.out.println(e);
     }
   }
-/*
-  public void FollowUp(int PostNr, Boolean Resolved, int FolderID, String post_Text, Date post_Date, Time post_Time, String CourseCode,
+
+  public void FollowUp(int PostNr , boolean resolved, int FollowUpOn, String post_Text, Date post_Date, Time post_Time, String CourseCode,
       String Email, String TypePost) {
 
-    this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "StartingPost");
-    this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
-    try {
-      this.statementStartingPost.setInt(1, PostNr);
-      this.statementStartingPost.setString(2, Title);
-      this.statementStartingPost.setInt(3, FolderID);
-      this.statementStartingPost.execute();
+      this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "FollowUp");
+      this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
 
+      try{
+        this.statementFollowUp.setInt(1, PostNr);
+        this.statementFollowUp.setBoolean(2, resolved);
+        this.statementFollowUp.setInt(3, FollowUpOn);
+        this.statementFollowUp.execute();
+      } catch (Exception e) {
+        System.out.println(e);
+      }
+    }
+
+
+  public void ReplyPost(int PostNr , int CommentOn, int AnswerOn, String TypeReply, String post_Text, Date post_Date, Time post_Time, String CourseCode,
+      String Email) {
+
+    this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "FollowUp");
+    this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?), (?))");
+
+    try{
+      this.statementReplyPost.setInt(1, PostNr);
+      this.statementReplyPost.setInt(2, CommentOn);
+      this.statementReplyPost.setInt(3, AnswerOn);
+      this.statementReplyPost.setString(4, TypeReply);
+      this.statementReplyPost.execute();
     } catch (Exception e) {
       System.out.println(e);
     }
-  }*/
+  }
 
 
   public List<Integer> searchPosts(String courseCode, String keyword) {
@@ -109,9 +130,8 @@ public class PostCtrl extends DBConn {
     Time post_Time = new java.sql.Time(calendar.getTime().getTime());
     PostCtrl postCtrl = new PostCtrl();
     postCtrl.connect();
-    postCtrl.startingPost(8, "Tittel", 1, "Dette er en test for startingpost",
-        post_Date, post_Time,"TDT4145", "PerPaulsen@hotmail.com", "StartingPost");
-
+    postCtrl.ReplyPost(21, 11, 7, "Comment", "Dette er en kommentar", post_Date, post_Time,
+        "TDT4145", "PerPaulsen@hotmail.com");
   }
 
 
