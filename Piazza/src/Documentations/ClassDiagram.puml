@@ -1,0 +1,32 @@
+@startuml
+
+abstract class DBConn
+class UserAuthCtrl
+class PostCtrl
+class StatsCtrl
+class ConsoleUI
+
+DBConn <|-- UserAuthCtrl
+DBConn <|-- StatsCtrl
+DBConn <|-- PostCtrl
+
+
+abstract class DBConn {
+#Connection conn;
+#connect()
+}
+
+class UserAuthCtrl {
++login(String, String)
+}
+
+class StatsCtrl {
+-verifyInstructor(String)
+-verifyUserInCourse(String, String)
+-printStats(String)
++getUserStats(String, String)
+}
+
+
+
+@enduml

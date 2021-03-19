@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class UserInterface {
+public class ConsoleUI {
 
     private String loggedInEmail;
     private final String ACTIVE_COURSE_CODE = "TDT4145";
@@ -12,7 +12,7 @@ public class UserInterface {
 
     private Scanner inputScanner;
 
-    public UserInterface() {
+    public ConsoleUI() {
         authCtrl = new UserAuthCtrl();
         postCtrl = new PostCtrl();
         statsCtrl = new StatsCtrl();
@@ -124,10 +124,10 @@ public class UserInterface {
 
 
     public static void main(String[] args) {
-        UserInterface userInterface = new UserInterface();
+        ConsoleUI consoleUI = new ConsoleUI();
 
-        while (!userInterface.login());
+        while (!consoleUI.login());
 
-        while(true) userInterface.chooseAction();
+        while(true) consoleUI.chooseAction();
     }
 }

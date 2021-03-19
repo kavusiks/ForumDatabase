@@ -2,6 +2,10 @@
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+/**
+ * Controller class used to let users log in.
+ * Mainly used in usecase 1
+ */
 public class UserAuthCtrl extends DBConn {
 
   /***

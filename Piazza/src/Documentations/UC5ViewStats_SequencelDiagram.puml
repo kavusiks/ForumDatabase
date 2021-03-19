@@ -1,0 +1,9 @@
+@startuml
+Actor Instructor1
+Instructor1 -> ConsoleUI: ViewStats(email, course)
+ConsoleUI -> StatsCtrl: getUserStats(email, course)
+StatsCtrl -> StatsCtrl: verifyInstructor(email), verifyUserInCourse(email, course)
+StatsCtrl -> StatsCtrl: printStats(course)
+StatsCtrl --> ConsoleUI: "statistics for the course"
+ConsoleUI --> Instructor1: "statistics for the course"
+@enduml
