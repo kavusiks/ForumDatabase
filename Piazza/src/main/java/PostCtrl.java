@@ -74,8 +74,14 @@ public class PostCtrl extends DBConn {
   }*/
 
 
+  /***
+   * Searches for the keyword in posts published in the given course.
+   * @param courseCode of the course.
+   * @param keyword that is to be searched for.
+   * @return a list with postNr of matched posts.
+   */
   public List<Integer> searchPosts(String courseCode, String keyword) {
-    ArrayList<Integer> result = new ArrayList<>();
+    List<Integer> result = new ArrayList<>();
     final String query =
         "Select PostNr " +
             "From Post Natural Left Outer Join StartingPost " +
@@ -100,6 +106,31 @@ public class PostCtrl extends DBConn {
     }
 
     return result;
+  }
+
+  public Map<String, Integer> getFolders(String courseCode) {
+    Map<String, Integer> folders = new HashMap<>();
+    final String query = "Select FolderID, folder_Name " +
+            "From Folder Where CourseCode = (?)";
+    try {
+      PreparedStatement statement = conn.prepareStatement(query);
+      statement.setString(1, courseCode);
+
+      ResultSet rs = statement.executeQuery();
+
+      while (rs.next()) {
+        final int folderId = rs.getInt("FolderID");
+        final String folderName = rs.getString("folder_Name");
+
+        folders.put(folderName, folderId);
+      }
+
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+      System.err.println("db error when retrieving folders");
+    }
+
+    return folders;
   }
 
 
