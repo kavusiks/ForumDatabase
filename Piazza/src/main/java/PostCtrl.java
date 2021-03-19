@@ -36,19 +36,14 @@ public class PostCtrl extends DBConn {
     }
   }*/
 
-  private int generatePrimaryKey(String SQL) {
+  private int generatePrimaryKey(String SQL) throws SQLException {
     this.statementGetPrimaryKey = insert(SQL);
     ResultSet resultSet = null;
-    try {
       resultSet = statementGetPrimaryKey.executeQuery();
       if (resultSet.next()) {
         return resultSet.getInt(1)+1;
       }
       return 1;
-    } catch (SQLException throwables) {
-      throwables.printStackTrace();
-      return 1;
-    }
   }
 
 
@@ -64,7 +59,11 @@ public class PostCtrl extends DBConn {
   private void post(String post_Text, String CourseCode, String Email, String TypePost) {
     try {
       this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
-      this.statementPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
+      try{
+        this.statementPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
+      }catch (SQLException e){
+        System.out.println(e);
+      }
       this.statementPost.setString(2, post_Text);
       this.statementPost.setDate(3, (java.sql.Date) post_Date);
       this.statementPost.setTime(4, post_Time);
@@ -88,6 +87,8 @@ public class PostCtrl extends DBConn {
 
     this.post(post_Text, CourseCode, Email, "StartingPost");
     this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
+    List<String> tags = new ArrayList<>();
+    this.TaggedStartingPost(tags);
     try {
       this.statementStartingPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
       this.statementStartingPost.setString(2, Title);
@@ -134,13 +135,13 @@ public class PostCtrl extends DBConn {
   }
 
 
-  public void TaggedStartingPost( List<String> Tag) {
+  public void TaggedStartingPost(List<String> Tag) {
 
     this.statementTag = insert("INSERT INTO ReplyPost VALUES ((?),(?))");
     try{
       for (int i = 0; i < Tag.size(); i++) {
         this.statementTag.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
-        this.statementTag.setString(2, Tag.get(0));
+        this.statementTag.setString(2, Tag.get(i));
         this.statementTag.execute();
       }
 
