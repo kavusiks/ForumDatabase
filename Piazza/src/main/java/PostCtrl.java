@@ -8,6 +8,7 @@ public class PostCtrl extends DBConn {
 
   private PreparedStatement statementPost;
   private PreparedStatement statementStartingPost;
+  private PreparedStatement statementFollowUp;
 
 
   public PreparedStatement insert(String SQL) {
@@ -41,6 +42,7 @@ public class PostCtrl extends DBConn {
     }
   }
 
+
   public void startingPost(int PostNr, String Title, int FolderID, String post_Text, Date post_Date, Time post_Time, String CourseCode,
       String Email, String TypePost) {
 
@@ -56,22 +58,22 @@ public class PostCtrl extends DBConn {
       System.out.println(e);
     }
   }
-/*
-  public void FollowUp(int PostNr, Boolean Resolved, int FolderID, String post_Text, Date post_Date, Time post_Time, String CourseCode,
-      String Email, String TypePost) {
 
-    this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "StartingPost");
-    this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
-    try {
-      this.statementStartingPost.setInt(1, PostNr);
-      this.statementStartingPost.setString(2, Title);
-      this.statementStartingPost.setInt(3, FolderID);
-      this.statementStartingPost.execute();
+public void FollowUp(int PostNr , boolean resolved, int FollowUpOn, String post_Text, Date post_Date, Time post_Time, String CourseCode,
+    String Email, String TypePost) {
 
+    this.post(PostNr, post_Text, post_Date, post_Time, CourseCode, Email, "FollowUp");
+    this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
+
+    try{
+      this.statementFollowUp.setInt(1, PostNr);
+      this.statementFollowUp.setBoolean(2, resolved);
+      this.statementFollowUp.setInt(3, FollowUpOn);
+      this.statementFollowUp.execute();
     } catch (Exception e) {
       System.out.println(e);
     }
-  }*/
+  }
 
 
   public List<Integer> searchPosts(String courseCode, String keyword) {
@@ -109,8 +111,8 @@ public class PostCtrl extends DBConn {
     Time post_Time = new java.sql.Time(calendar.getTime().getTime());
     PostCtrl postCtrl = new PostCtrl();
     postCtrl.connect();
-    postCtrl.startingPost(8, "Tittel", 1, "Dette er en test for startingpost",
-        post_Date, post_Time,"TDT4145", "PerPaulsen@hotmail.com", "StartingPost");
+    postCtrl.FollowUp(18, true, 7, "Dette er en test for FollowUp",
+        post_Date, post_Time,"TDT4145", "PerPaulsen@hotmail.com", "FollowUp");
 
   }
 
