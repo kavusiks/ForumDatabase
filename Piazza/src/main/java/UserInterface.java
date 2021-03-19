@@ -1,12 +1,10 @@
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class UserInterface {
 
     private String loggedInEmail;
     private final String ACTIVE_COURSE_CODE = "TDT4145";
+    private final List<String> ALL_TAGS = Arrays.asList("questions", "announcements", "homework", "homework solutions", "lectures notes", "general announcements");
 
     private UserAuthCtrl authCtrl;
     private PostCtrl postCtrl;
@@ -61,9 +59,36 @@ public class UserInterface {
         final int folderIndex = inputScanner.nextInt();
         final int folderId = folders.get(folderIndexes.get(folderIndex));
 
+        System.out.println("Choose tags:");
+        List<String> chosenTags = new ArrayList<>();
+        List<String> validTags = new ArrayList<>(ALL_TAGS);
+        while(validTags.size() != 0) {
+            String tag = getTag(validTags);
+            if (tag == null)
+                break;
+            validTags.remove(tag);
+            chosenTags.add(tag);
+        }
+
         System.out.println("Text:");
         final String text = inputScanner.next();
 
+        if (postCtrl.createStartingPost(title, folderId, text, ACTIVE_COURSE_CODE, loggedInEmail, chosenTags))
+            System.out.println("New post created!");
+        else
+            System.out.println("Something went wrong");
+    }
+
+    private String getTag(List<String> validTags) {
+        for (int i = 1; i <= validTags.size(); i++) {
+            System.out.println(String.format("(%d) %s", i, validTags.get(i - 1)));
+        }
+
+        final int tagIndex = inputScanner.nextInt() - 1;
+        if (tagIndex >= 0 && tagIndex < validTags.size()) {
+            return validTags.get(tagIndex);
+        }
+        return null;
     }
 
     public void searchPosts() {
@@ -101,7 +126,7 @@ public class UserInterface {
     public static void main(String[] args) {
         UserInterface userInterface = new UserInterface();
 
-        //while (!userInterface.login());
+        while (!userInterface.login());
 
         while(true) userInterface.chooseAction();
     }

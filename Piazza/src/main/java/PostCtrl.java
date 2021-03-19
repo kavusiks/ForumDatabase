@@ -1,51 +1,28 @@
-import java.awt.geom.NoninvertibleTransformException;
 import java.util.*;
 import java.sql.*;
 import java.util.Date;
 
 public class PostCtrl extends DBConn {
 
-  private UserAuthCtrl userAuthCtrl = new UserAuthCtrl();
   private PreparedStatement statementGetPrimaryKey;
   private PreparedStatement statementPost;
   private PreparedStatement statementStartingPost;
   private PreparedStatement statementFollowUp;
   private PreparedStatement statementReplyPost;
   private PreparedStatement statementTag;
-  private List<Integer> primaryKyes;
 
   Calendar calendar = Calendar.getInstance();
   Date post_Date =  new java.sql.Date(calendar.getTime().getTime());
   Time post_Time = new java.sql.Time(calendar.getTime().getTime());
 
-
-  /*private List<Integer> getPrimaryKeys(String SQL, String PKName) {
-    primaryKyes = new ArrayList<>();
-    statementGetPrimaryKey = insert(SQL);
-    try {
-      ResultSet resultSet = statementGetPrimaryKey.executeQuery();
-      while (resultSet.next()) {
-        primaryKyes.add(resultSet.getInt(PKName));
-
-       return primaryKyes;
-      }
-
-    } catch (Exception e) {
-      System.out.println(e);
-      return null;
-    }
-  }*/
-
   private int generatePrimaryKey(String SQL) throws SQLException {
     this.statementGetPrimaryKey = insert(SQL);
-    ResultSet resultSet = null;
-      resultSet = statementGetPrimaryKey.executeQuery();
-      if (resultSet.next()) {
-        return resultSet.getInt(1)+1;
-      }
+    ResultSet resultSet = statementGetPrimaryKey.executeQuery();
+    if (resultSet.next()) {
+      return resultSet.getInt(1)+1;
+    }
       return 1;
   }
-
 
   public PreparedStatement insert(String SQL) {
     try {
@@ -56,102 +33,87 @@ public class PostCtrl extends DBConn {
     }
   }
 
-  private void post(String post_Text, String CourseCode, String Email, String TypePost) {
-    try {
+  private int createPost(String post_Text, String CourseCode, String Email, String TypePost) throws SQLException{
+      int key = generatePrimaryKey("Select max(PostNr) From Post");
       this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
-      try{
-        this.statementPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
-      }catch (SQLException e){
-        System.out.println(e);
-      }
+      this.statementPost.setInt(1, key);
       this.statementPost.setString(2, post_Text);
       this.statementPost.setDate(3, (java.sql.Date) post_Date);
       this.statementPost.setTime(4, post_Time);
       this.statementPost.setString(5, CourseCode);
       this.statementPost.setString(6, Email);
       this.statementPost.setString(7, TypePost);
-      try {
         statementPost.execute();
-      } catch (java.sql.SQLException e) {
-        System.out.println(e);
-      }
-    } catch (Exception e) {
-
-      System.out.println(e);
-    }
+      return key;
   }
 
-
-  public void startingPost( String Title, int FolderID, String post_Text, String CourseCode,
-      String Email, String TypePost) {
-
-    this.post(post_Text, CourseCode, Email, "StartingPost");
+  public boolean createStartingPost(String title, int folderId, String text, String courseCode,
+      String email, List<String> tags) {
     this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
-    List<String> tags = new ArrayList<>();
-    this.TaggedStartingPost(tags);
     try {
-      this.statementStartingPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
-      this.statementStartingPost.setString(2, Title);
-      this.statementStartingPost.setInt(3, FolderID);
+      int key = this.createPost(text, courseCode, email, "StartingPost");
+      this.statementStartingPost.setInt(1, key);
+      this.statementStartingPost.setString(2, title);
+      this.statementStartingPost.setInt(3, folderId);
       this.statementStartingPost.execute();
-
+      this.createTaggedStartingPost(key, tags);
+      return true;
     } catch (Exception e) {
       System.out.println(e);
+      return false;
     }
   }
 
-  public void FollowUp( boolean resolved, int FollowUpOn, String post_Text, String CourseCode,
-      String Email, String TypePost) {
-
-      this.post(post_Text, CourseCode, Email, "FollowUp");
-      this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
-
+  public boolean createFollowUp( boolean resolved, int followUpOn, String text, String courseCode,
+      String email) {
       try{
-        this.statementFollowUp.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
+        int key = this.createPost(text, courseCode, email, "FollowUp");
+        this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
+        this.statementFollowUp.setInt(1, key);
         this.statementFollowUp.setBoolean(2, resolved);
-        this.statementFollowUp.setInt(3, FollowUpOn);
+        this.statementFollowUp.setInt(3, followUpOn);
         this.statementFollowUp.execute();
+        return true;
       } catch (Exception e) {
         System.out.println(e);
+        return false;
       }
     }
 
-
-  public void ReplyPost(int PostNr , int CommentOn, int AnswerOn, String TypeReply, String post_Text, String CourseCode,
-      String Email) {
-
-    this.post(post_Text, CourseCode, Email, "FollowUp");
-    this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
-
+  private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
+      String email) {
     try{
-      this.statementReplyPost.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
-      this.statementReplyPost.setInt(2, CommentOn);
-      this.statementReplyPost.setInt(3, AnswerOn);
-      this.statementReplyPost.setString(4, TypeReply);
+      int key = this.createPost(text, courseCode, email, "FollowUp");
+      this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
+      this.statementReplyPost.setInt(1, key);
+      this.statementReplyPost.setInt(2, commentOn);
+      this.statementReplyPost.setInt(3, answerOn);
+      this.statementReplyPost.setString(4, typeReply);
       this.statementReplyPost.execute();
+      return true;
     } catch (Exception e) {
       System.out.println(e);
+      return false;
     }
   }
 
-
-  public void TaggedStartingPost(List<String> Tag) {
-
-    this.statementTag = insert("INSERT INTO ReplyPost VALUES ((?),(?))");
-    try{
-      for (int i = 0; i < Tag.size(); i++) {
-        this.statementTag.setInt(1, generatePrimaryKey("Select max(PostNr) From Post"));
-        this.statementTag.setString(2, Tag.get(i));
-        this.statementTag.execute();
-      }
-
-    } catch (Exception e) {
-      System.out.println(e);
-    }
+  public boolean createAnswerOn(int answerOn, String post_Text, String courseCode, String Email) {
+    return createReplyPost(null, answerOn, "Answer", courseCode, post_Text, Email);
   }
 
+  public boolean createCommentOn(int commentOn, String post_Text, String courseCode, String Email) {
+    return createReplyPost(null, commentOn, "Comment", courseCode, post_Text, Email);
+  }
 
+  private void createTaggedStartingPost(int postNr, List<String> tags) throws SQLException{
 
+    this.statementTag = insert("INSERT INTO TaggedStartingPost VALUES ((?),(?))");
+    for (String tag : tags) {
+      this.statementTag.setInt(1, postNr);
+      this.statementTag.setString(2, tag);
+      this.statementTag.execute();
+    }
+  }
 
   /***
    * Searches for the keyword in posts published in the given course.
@@ -211,16 +173,4 @@ public class PostCtrl extends DBConn {
 
     return folders;
   }
-
-
-  public static void main(String[] args) {
-    Calendar calendar = Calendar.getInstance();
-    Date post_Date = new java.sql.Date(calendar.getTime().getTime());
-    Time post_Time = new java.sql.Time(calendar.getTime().getTime());
-    PostCtrl postCtrl = new PostCtrl();
-    postCtrl.connect();
-    postCtrl.post("Dette er en post med auto pk", "TDT4145", "olaNordmann@gmail.com", "StartingPost");
-  }
-
-
 }

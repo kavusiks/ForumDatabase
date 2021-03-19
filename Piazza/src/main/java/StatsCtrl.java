@@ -8,10 +8,6 @@ import java.sql.ResultSet;
  */
 public class StatsCtrl extends DBConn {
 
-  public StatsCtrl() {
-    this.connect();
-  }
-
   /**
    * Method used to verify that an user is og user_Type "Instructor".
    * @param email the user's Email(pk)
@@ -105,12 +101,4 @@ public class StatsCtrl extends DBConn {
     if (verified)
       printStats(courseCode);
   }
-
-
-  public static void main(String[] args) {
-    StatsCtrl s = new StatsCtrl();
-
-    s.getUserStats("PerPaulsen@gmail.com", "TDT4145");
-  }
-
 }
