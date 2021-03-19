@@ -7,7 +7,6 @@ import java.sql.ResultSet;
  * Mainly used in usecase 5
  */
 public class StatsCtrl extends DBConn {
-  String instructor_mail;
 
   public StatsCtrl() {
     this.connect();
@@ -28,15 +27,11 @@ public class StatsCtrl extends DBConn {
       while (result.next()) {
         userType = result.getString("user_Type");
       }
-      System.out.println(userType);
+      //System.out.println("userType: " +userType);
     } catch (Exception e) {
       System.out.println("db error during query for verifying user is instructor");
     }
-    if (userType.equals("Instructor")) {
-      this.instructor_mail = email;
-      return true;
-    }
-    return false;
+    return userType.equals("Instructor");
   }
   
   /**
@@ -60,7 +55,7 @@ public class StatsCtrl extends DBConn {
         query_result_course = result.getString("CourseCode");
       }
       if (query_result_user.equals(email) && query_result_course.equals(course)) {
-        System.out.println("User in course verified");
+        //System.out.println("User in course verified");
         return true;
       }
     } catch (Exception e) {
