@@ -9,6 +9,10 @@ class ConsoleUI
 DBConn <|-- UserAuthCtrl
 DBConn <|-- StatsCtrl
 DBConn <|-- PostCtrl
+UserAuthCtrl"authCtrl: 1"<--ConsoleUI
+PostCtrl"postCtrl: 1" <--ConsoleUI
+StatsCtrl"statsCtrl: 1"<--ConsoleUI
+
 
 
 abstract class DBConn {
@@ -21,10 +25,18 @@ class UserAuthCtrl {
 }
 
 class StatsCtrl {
--verifyInstructor(String)
++verifyInstructor(String)
 -verifyUserInCourse(String, String)
 -printStats(String)
 +getUserStats(String, String)
+}
+
+class ConsoleUI {
+UserAuthCtrl authCtrl;
+PostCtrl postCtrl;
+StatsCtrl statsCtrl;
+
+
 }
 
 
