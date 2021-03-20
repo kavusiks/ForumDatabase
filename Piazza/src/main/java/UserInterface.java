@@ -83,10 +83,13 @@ public class UserInterface {
         for (int i = 1; i <= validTags.size(); i++) {
             System.out.println(String.format("(%d) %s", i, validTags.get(i - 1)));
         }
-
-        final int tagIndex = inputScanner.nextInt() - 1;
-        if (tagIndex >= 0 && tagIndex < validTags.size()) {
-            return validTags.get(tagIndex);
+        try {
+            final int tagIndex = inputScanner.nextInt() - 1;
+            if (tagIndex >= 0 && tagIndex < validTags.size()) {
+                return validTags.get(tagIndex);
+            }
+        } catch (Exception e) {
+            return null;
         }
         return null;
     }
