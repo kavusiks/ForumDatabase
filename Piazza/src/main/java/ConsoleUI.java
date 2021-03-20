@@ -76,8 +76,6 @@ public class ConsoleUI {
             System.out.println("New post created!");
         else
             System.out.println("Something went wrong");
-
-
     }
 
     private String getTag(List<String> validTags) {
@@ -103,8 +101,8 @@ public class ConsoleUI {
     }
 
     public void chooseAction() {
-
         boolean isInstructor = statsCtrl.verifyInstructor(loggedInEmail);
+
         System.out.println("Choose action:");
         System.out.println("(1) Create post");
         System.out.println("(2) Search in posts");
@@ -133,35 +131,29 @@ public class ConsoleUI {
         }
     }
 
-
     private void createAnswerOn() {
-        System.out.println("Select postnumber");
+        System.out.println("Select post:");
 
-        for(Map.Entry<Integer, String> entry: postCtrl.getPostNumberWithTitle(ACTIVE_COURSE_CODE).entrySet()) {
+        for(Map.Entry<Integer, String> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
             System.out.println(entry.getKey()+": " +entry.getValue());
         }
-
+        System.out.print("Your choice: ");
         int answer = inputScanner.nextInt();
-        System.out.println("Write text: ");
+        System.out.println("Text:");
         final String answerText = inputScanner.next();
-        if ( postCtrl.createAnswerOn(answer, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
+        if (postCtrl.createAnswerOn(answer, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
             System.out.println("New answer created!");
         else
             System.out.println("Something went wrong");
-
-
-
     }
 
     public void viewStats() {
         this.statsCtrl.getUserStats(loggedInEmail, ACTIVE_COURSE_CODE);
-
     }
 
     private void invalidAction() {
-        System.out.println("Not a valid choice!");}
-
-
+        System.out.println("Not a valid choice!");
+    }
 
     public static void main(String[] args) {
         ConsoleUI consoleUI = new ConsoleUI();

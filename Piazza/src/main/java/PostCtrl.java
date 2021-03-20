@@ -13,6 +13,9 @@ public class PostCtrl extends DBConn {
   private PreparedStatement statementTag;
 
   private Calendar calendar = Calendar.getInstance();
+
+  //Bare en liten ting, men dette blir feil siden man kjører programmet over lengre tid,
+  //burde kanskje heller ha to hjelpemetoder for å få tid og dato
   private Date post_Date =  new java.sql.Date(calendar.getTime().getTime());
   private Time post_Time = new java.sql.Time(calendar.getTime().getTime());
 
@@ -34,16 +37,16 @@ public class PostCtrl extends DBConn {
     }
   }
 
-  private int createPost(String post_Text, String CourseCode, String Email, String TypePost) throws SQLException{
+  private int createPost(String post_Text, String courseCode, String email, String typePost) throws SQLException{
       int key = generatePrimaryKey("Select max(PostNr) From Post");
       this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
       this.statementPost.setInt(1, key);
       this.statementPost.setString(2, post_Text);
       this.statementPost.setDate(3, (java.sql.Date) post_Date);
       this.statementPost.setTime(4, post_Time);
-      this.statementPost.setString(5, CourseCode);
-      this.statementPost.setString(6, Email);
-      this.statementPost.setString(7, TypePost);
+      this.statementPost.setString(5, courseCode);
+      this.statementPost.setString(6, email);
+      this.statementPost.setString(7, typePost);
         statementPost.execute();
       return key;
   }
@@ -60,12 +63,13 @@ public class PostCtrl extends DBConn {
       this.createTaggedStartingPost(key, tags);
       return true;
     } catch (Exception e) {
-      System.out.println(e);
+      System.out.println("db error during create starting post query");
+      System.out.println(e.getMessage());
       return false;
     }
   }
 
-  public boolean createFollowUp( boolean resolved, int followUpOn, String text, String courseCode,
+  public boolean createFollowUp(boolean resolved, int followUpOn, String text, String courseCode,
       String email) {
       try{
         int key = this.createPost(text, courseCode, email, "FollowUp");
@@ -76,7 +80,8 @@ public class PostCtrl extends DBConn {
         this.statementFollowUp.execute();
         return true;
       } catch (Exception e) {
-        System.out.println(e);
+        System.err.println("db error during create follow up query");
+        System.err.println(e.getMessage());
         return false;
       }
     }
@@ -88,25 +93,29 @@ public class PostCtrl extends DBConn {
       int key = this.createPost(text, courseCode, email, "ReplyPost");
       this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
       this.statementReplyPost.setInt(1, key);
+
       if (commentOn == null)
-        this.statementReplyPost.setInt(2, java.sql.Types.NULL);
-      else
         this.statementReplyPost.setNull(2, commentOn);
+      else
+        this.statementReplyPost.setInt(2, java.sql.Types.NULL);
+
       if (answerOn == null)
         this.statementReplyPost.setNull(3, java.sql.Types.NULL);
       else
         this.statementReplyPost.setInt(3, answerOn);
+
       this.statementReplyPost.setString(4, typeReply);
       this.statementReplyPost.execute();
       return true;
     } catch (Exception e) {
-      System.out.println(e);
+      System.err.println("db error during create reply query");
+      System.err.println(e.getMessage());
       return false;
     }
   }
 
-  public boolean createAnswerOn(int answerOn, String post_Text, String courseCode, String Email) {
-    String userType = this.getUserType(Email);
+  public boolean createAnswerOn(int answerOn, String post_Text, String courseCode, String email) {
+    String userType = this.getUserType(email);
     String query = "Select user_Type, PostNr from User natural inner join Post natural inner join ReplyPost where CourseCode= (?) and AnswerOn = (?)";
     try {
       PreparedStatement answerStatement = conn.prepareStatement(query);
@@ -124,19 +133,18 @@ public class PostCtrl extends DBConn {
           updatePostReply.setString(1, post_Text);
           updatePostReply.setDate(2, (java.sql.Date) this.post_Date);
           updatePostReply.setTime(3, this.post_Time);
-          updatePostReply.setString(5, Email);
-          updatePostReply.setInt(6, postNr);
+          updatePostReply.setString(4, email);
+          updatePostReply.setInt(5, postNr);
           updatePostReply.executeUpdate();
           return true;
         }
-
       }
-
-    } catch (SQLException throwables) {
-      throwables.printStackTrace();
+    } catch (Exception e) {
+      System.err.println("db error during create answer query");
+      System.err.println(e.getMessage());
+      return false;
     }
-    System.out.println("Feil sted");
-    return createReplyPost(null, answerOn, "Answer", post_Text, courseCode, Email);
+    return createReplyPost(null, answerOn, "Answer", post_Text, courseCode, email);
   }
 
   public boolean createCommentOn(int commentOn, String post_Text, String courseCode, String Email) {
@@ -205,14 +213,15 @@ public class PostCtrl extends DBConn {
       }
 
     } catch (Exception e) {
-      System.err.println(e.getMessage());
       System.err.println("db error when retrieving folders");
+      System.err.println(e.getMessage());
     }
 
     return folders;
   }
 
-  public Map<Integer, String> getPostNumberWithTitle(String CourseCode) {
+
+  public Map<Integer, String> getPosts(String CourseCode) {
     Map<Integer, String> posts = new HashMap<>();
     final String query = "Select PostNr, Title from StartingPost natural inner join Post where CourseCode = (?)";
     try {
@@ -223,8 +232,9 @@ public class PostCtrl extends DBConn {
         posts.put(resultSet.getInt("PostNr"), resultSet.getString("Title"));
       }
 
-    } catch (SQLException throwables) {
-      throwables.printStackTrace();
+    } catch (Exception e) {
+      System.err.println("db error during query for getting posts");
+      System.err.println(e.getMessage());
     }
 
     return posts;
@@ -237,14 +247,12 @@ public class PostCtrl extends DBConn {
       PreparedStatement statement = conn.prepareStatement(query);
       statement.setString(1, email);
       ResultSet result = statement.executeQuery();
-      while (result.next()) {
+      if (result.next()) {
         userType = result.getString("user_Type");
       }
-      //System.out.println("userType: " +userType);
-
     } catch (Exception e) {
-      System.out.println("db error during query for getting instructor");
-
+      System.err.println("db error during query for getting instructor");
+      System.err.println(e.getMessage());
     }
     return userType;
   }
