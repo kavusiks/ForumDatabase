@@ -89,9 +89,9 @@ public class PostCtrl extends DBConn {
       this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
       this.statementReplyPost.setInt(1, key);
       if (commentOn == null)
-        this.statementReplyPost.setInt(2, java.sql.Types.NULL);
+        this.statementReplyPost.setNull(2, java.sql.Types.NULL);
       else
-        this.statementReplyPost.setNull(2, commentOn);
+        this.statementReplyPost.setInt(2, commentOn);
       if (answerOn == null)
         this.statementReplyPost.setNull(3, java.sql.Types.NULL);
       else
@@ -124,8 +124,8 @@ public class PostCtrl extends DBConn {
           updatePostReply.setString(1, post_Text);
           updatePostReply.setDate(2, (java.sql.Date) this.post_Date);
           updatePostReply.setTime(3, this.post_Time);
-          updatePostReply.setString(5, Email);
-          updatePostReply.setInt(6, postNr);
+          updatePostReply.setString(4, Email);
+          updatePostReply.setInt(5, postNr);
           updatePostReply.executeUpdate();
           return true;
         }
