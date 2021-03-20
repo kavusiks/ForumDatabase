@@ -213,22 +213,6 @@ insert into ViewedPost Values("KariNordmann@gmail.com", 1);
 insert into ViewedPost Values("SiriPaulsen@hotmail.com", 1);
 insert into ViewedPost Values("SiriPaulsen@hotmail.com", 2);
 insert into ViewedPost Values("PerPaulsen@hotmail.com", 1);
-insert into ViewedPost Values("PerPaulsen@hotmail.com", 2)
-;
-
-/* DETTE ER SÅNN VI SKREV??
-Select uc1.Email, count(vp1.PostNr) as ReadPost 
-from UserInCourse as uc1 left outer join (
-ViewedPost as vp1 inner join  Post as p1 on vp1.PostNr = p1.PostNr) on uc1.Email = vp1.Email
-where p1.CourseCode = "TDT4145"
-group by uc1.Email;*/
-
-
-/*where Post.CourseCode="TDT4145";
-
-/*Select * 
-from ViewedPost as vp1 inner join (Select * 
-															from Post As p1
-                                                            where p1.CourseCode='TDT4145') on p1.PostNr = vp1.PostNr;*/
+insert into ViewedPost Values("PerPaulsen@hotmail.com", 2);
                                                             
                                                             
