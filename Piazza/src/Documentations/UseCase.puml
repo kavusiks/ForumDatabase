@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+actor Student
+actor Instructor
+rectangle PiazzaForum {
+(Logge inn) as (uc1)
+(Lage ny post) as (uc2)
+(Svare på post) as (uc3)
+(Søke etter post) as (uc4)
+(Se statistikk) as (uc5)
+
+  Student -- (uc1)
+  Student - (uc2)
+  Student - (uc3)
+  Student - (uc4)
+  (uc1) -- Instructor
+  (uc2) - Instructor
+  (uc3) - Instructor
+  (uc4) - Instructor
+  (uc5) - Instructor
+}
+
+@enduml
