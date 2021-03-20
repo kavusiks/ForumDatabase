@@ -206,6 +206,7 @@ insert into Post Values(1, "Dette er første post", "2008-11-11", "13:23:44","TD
 insert into Post Values(2, "Dette er andre post", "2008-11-12", "13:33:44","TDT4145", "KariNordmann@gmail.com", "StartingPost");
 insert into Post Values(3, "Dette er tredje post", "2008-11-12", "13:35:44","TDT4145", "KariNordmann@gmail.com", "StartingPost");
 insert into Folder Values(1, "Exam", "TDT4145", null);
+insert into Folder Values(2, "Solutions", "TDT4145", 1);
 insert into StartingPost Values(1,"Første tittel", 1);
 insert into StartingPost Values(2,"Andre tittel", 1);
 insert into ViewedPost Values("KariNordmann@gmail.com", 1);

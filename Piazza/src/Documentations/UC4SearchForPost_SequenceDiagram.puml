@@ -1,0 +1,10 @@
+@startuml
+actor Student1
+Student1 -> ConsoleUI: searchPost()
+ConsoleUI -> Student1: "Search after: "
+Student1 --> ConsoleUI: "WAL"
+ConsoleUI --> Student1: "Search results: "
+ConsoleUI -> PostCtrl: searchPosts(courseCode, keyword)
+PostCtrl --> ConsoleUI: List with the corresponding postIds
+ConsoleUI --> Student1: //Shows the list//
+@enduml
