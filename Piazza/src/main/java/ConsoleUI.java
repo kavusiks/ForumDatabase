@@ -5,7 +5,6 @@ public class ConsoleUI {
     private String loggedInEmail;
     private final String ACTIVE_COURSE_CODE = "TDT4145";
     private final List<String> ALL_TAGS = Arrays.asList("questions", "announcements", "homework", "homework solutions", "lectures notes", "general announcements");
-
     private UserAuthCtrl authCtrl;
     private PostCtrl postCtrl;
     private StatsCtrl statsCtrl;
@@ -77,6 +76,8 @@ public class ConsoleUI {
             System.out.println("New post created!");
         else
             System.out.println("Something went wrong");
+
+
     }
 
     private String getTag(List<String> validTags) {
@@ -102,9 +103,15 @@ public class ConsoleUI {
     }
 
     public void chooseAction() {
+
+        boolean isInstructor = statsCtrl.verifyInstructor(loggedInEmail);
         System.out.println("Choose action:");
         System.out.println("(1) Create post");
         System.out.println("(2) Search in posts");
+        System.out.println("(3) Answer on post");
+        if (isInstructor) {
+            System.out.println("(4) View stats");
+        }
         System.out.print("Your choice: ");
         try {
             final int action = inputScanner.nextInt();
@@ -112,6 +119,12 @@ public class ConsoleUI {
                 createStartingPost();
             else if (action == 2)
                 searchPosts();
+            else if (action == 3) {
+                createAnswerOn();
+            }
+            else if (action == 4 && isInstructor) {
+                viewStats();
+            }
             else {
                 invalidAction();
             }
@@ -120,9 +133,33 @@ public class ConsoleUI {
         }
     }
 
-    private void invalidAction() {
-        System.out.println("Not a valid choice!");
+
+    private void createAnswerOn() {
+        System.out.println("Select postnumber");
+
+        for(Map.Entry<Integer, String> entry: postCtrl.getPostNumberWithTitle(ACTIVE_COURSE_CODE).entrySet()) {
+            System.out.println(entry.getKey()+": " +entry.getValue());
+        }
+
+        int answer = inputScanner.nextInt();
+        System.out.println("Write text: ");
+        final String answerText = inputScanner.next();
+        if ( postCtrl.createAnswerOn(answer, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
+            System.out.println("New answer created!");
+        else
+            System.out.println("Something went wrong");
+
+
+
     }
+
+    public void viewStats() {
+        this.statsCtrl.getUserStats(loggedInEmail, ACTIVE_COURSE_CODE);
+
+    }
+
+    private void invalidAction() {
+        System.out.println("Not a valid choice!");}
 
 
 

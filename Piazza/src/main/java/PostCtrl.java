@@ -1,3 +1,4 @@
+import java.rmi.MarshalledObject;
 import java.util.*;
 import java.sql.*;
 import java.util.Date;
@@ -11,9 +12,9 @@ public class PostCtrl extends DBConn {
   private PreparedStatement statementReplyPost;
   private PreparedStatement statementTag;
 
-  Calendar calendar = Calendar.getInstance();
-  Date post_Date =  new java.sql.Date(calendar.getTime().getTime());
-  Time post_Time = new java.sql.Time(calendar.getTime().getTime());
+  private Calendar calendar = Calendar.getInstance();
+  private Date post_Date =  new java.sql.Date(calendar.getTime().getTime());
+  private Time post_Time = new java.sql.Time(calendar.getTime().getTime());
 
   private int generatePrimaryKey(String SQL) throws SQLException {
     this.statementGetPrimaryKey = insert(SQL);
@@ -83,11 +84,18 @@ public class PostCtrl extends DBConn {
   private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
       String email) {
     try{
-      int key = this.createPost(text, courseCode, email, "FollowUp");
+      System.out.println(commentOn);
+      int key = this.createPost(text, courseCode, email, "ReplyPost");
       this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
       this.statementReplyPost.setInt(1, key);
-      this.statementReplyPost.setInt(2, commentOn);
-      this.statementReplyPost.setInt(3, answerOn);
+      if (commentOn == null)
+        this.statementReplyPost.setInt(2, java.sql.Types.NULL);
+      else
+        this.statementReplyPost.setNull(2, commentOn);
+      if (answerOn == null)
+        this.statementReplyPost.setNull(3, java.sql.Types.NULL);
+      else
+        this.statementReplyPost.setInt(3, answerOn);
       this.statementReplyPost.setString(4, typeReply);
       this.statementReplyPost.execute();
       return true;
@@ -98,11 +106,41 @@ public class PostCtrl extends DBConn {
   }
 
   public boolean createAnswerOn(int answerOn, String post_Text, String courseCode, String Email) {
-    return createReplyPost(null, answerOn, "Answer", courseCode, post_Text, Email);
+    String userType = this.getUserType(Email);
+    String query = "Select user_Type, PostNr from User natural inner join Post natural inner join ReplyPost where CourseCode= (?) and AnswerOn = (?)";
+    try {
+      PreparedStatement answerStatement = conn.prepareStatement(query);
+      System.out.println(courseCode);
+      answerStatement.setString(1,courseCode);
+      answerStatement.setInt(2,answerOn);
+      ResultSet resultSet = answerStatement.executeQuery();
+      if (resultSet.next()) {
+
+        if (resultSet.getString("user_Type").equals(userType)) {
+          int postNr = resultSet.getInt("PostNr");
+          System.out.println(postNr);
+          String updateQuery = "Update Post set post_Text = (?), post_Date = (?), post_Time = (?), Email = (?) where PostNr =(?)";
+          PreparedStatement updatePostReply = conn.prepareStatement(updateQuery);
+          updatePostReply.setString(1, post_Text);
+          updatePostReply.setDate(2, (java.sql.Date) this.post_Date);
+          updatePostReply.setTime(3, this.post_Time);
+          updatePostReply.setString(5, Email);
+          updatePostReply.setInt(6, postNr);
+          updatePostReply.executeUpdate();
+          return true;
+        }
+
+      }
+
+    } catch (SQLException throwables) {
+      throwables.printStackTrace();
+    }
+    System.out.println("Feil sted");
+    return createReplyPost(null, answerOn, "Answer", post_Text, courseCode, Email);
   }
 
   public boolean createCommentOn(int commentOn, String post_Text, String courseCode, String Email) {
-    return createReplyPost(null, commentOn, "Comment", courseCode, post_Text, Email);
+    return createReplyPost(commentOn, null, "Comment", post_Text,courseCode, Email);
   }
 
   private void createTaggedStartingPost(int postNr, List<String> tags) throws SQLException{
@@ -172,5 +210,42 @@ public class PostCtrl extends DBConn {
     }
 
     return folders;
+  }
+
+  public Map<Integer, String> getPostNumberWithTitle(String CourseCode) {
+    Map<Integer, String> posts = new HashMap<>();
+    final String query = "Select PostNr, Title from StartingPost natural inner join Post where CourseCode = (?)";
+    try {
+      PreparedStatement selectPost = conn.prepareStatement(query);
+      selectPost.setString(1, CourseCode);
+      ResultSet resultSet = selectPost.executeQuery();
+      while (resultSet.next()) {
+        posts.put(resultSet.getInt("PostNr"), resultSet.getString("Title"));
+      }
+
+    } catch (SQLException throwables) {
+      throwables.printStackTrace();
+    }
+
+    return posts;
+  }
+
+  public String getUserType(String email) {
+    String userType = null;
+    try {
+      String query = "Select user_Type From User Where Email = (?)";
+      PreparedStatement statement = conn.prepareStatement(query);
+      statement.setString(1, email);
+      ResultSet result = statement.executeQuery();
+      while (result.next()) {
+        userType = result.getString("user_Type");
+      }
+      //System.out.println("userType: " +userType);
+
+    } catch (Exception e) {
+      System.out.println("db error during query for getting instructor");
+
+    }
+    return userType;
   }
 }

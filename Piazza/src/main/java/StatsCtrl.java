@@ -13,7 +13,7 @@ public class StatsCtrl extends DBConn {
    * @param email the user's Email(pk)
    * @return true if user is of type "Instructor"
    */
-  private boolean verifyInstructor(String email) {
+  public boolean verifyInstructor(String email) {
     String userType = "null";
     try {
       String query = "Select Email, user_Type From User Where Email = (?)";
@@ -29,7 +29,7 @@ public class StatsCtrl extends DBConn {
       System.out.println("db error during query for verifying user is instructor");
       return false;
     }
-    System.out.println("User is not an instructor or is not registered in the given course");
+    //System.out.println("User is not an instructor or is not registered in the given course");
     return false;
   }
   
