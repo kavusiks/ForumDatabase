@@ -94,14 +94,14 @@ public class PostCtrl extends DBConn {
       this.statementReplyPost.setInt(1, key);
 
       if (commentOn == null)
-        this.statementReplyPost.setNull(2, commentOn);
+        this.statementReplyPost.setNull(2, java.sql.Types.NULL);
       else
-        this.statementReplyPost.setInt(2, java.sql.Types.NULL);
+        this.statementReplyPost.setInt(2, commentOn);
 
       if (answerOn == null)
-        this.statementReplyPost.setNull(3, java.sql.Types.NULL);
+        this.statementReplyPost.setInt(3, java.sql.Types.NULL);
       else
-        this.statementReplyPost.setInt(3, answerOn);
+        this.statementReplyPost.setNull(3, answerOn);
 
       this.statementReplyPost.setString(4, typeReply);
       this.statementReplyPost.execute();
