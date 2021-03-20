@@ -89,7 +89,6 @@ public class PostCtrl extends DBConn {
   private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
       String email) {
     try{
-      System.out.println(commentOn);
       int key = this.createPost(text, courseCode, email, "ReplyPost");
       this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
       this.statementReplyPost.setInt(1, key);
