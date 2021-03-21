@@ -134,8 +134,8 @@ public class ConsoleUI {
     private void createAnswerOn() {
         System.out.println("Select post:");
 
-        for(Map.Entry<Integer, String> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
-            System.out.println(entry.getKey()+": " +entry.getValue());
+        for(Map.Entry<Integer, List<String>> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
+            System.out.println("PostID: "+entry.getKey()+", Title: " +entry.getValue().get(0)+ ", Folder name: "+entry.getValue().get(1));
         }
         System.out.print("Your choice: ");
         int answer = inputScanner.nextInt();

@@ -19,6 +19,11 @@ public class PostCtrl extends DBConn {
   private final static String ANSWER = "Answer";
   private final static String COMMENT = "Comment";
 
+  /**
+   * generates a unique primary key for a Post
+   * @return the ineteger for the primary key
+   * @throws SQLException
+   */
   private int generatePrimaryKey() throws SQLException {
     this.statementGetPrimaryKey = insert("Select max(postNr) From Post");
     ResultSet resultSet = statementGetPrimaryKey.executeQuery();
@@ -28,15 +33,25 @@ public class PostCtrl extends DBConn {
       return 1;
   }
 
-  public PreparedStatement insert(String SQL) {
-    try {
+  /**
+   *
+   * @param SQL
+   * @return prepares a statment
+   * @throws SQLException
+   */
+  public PreparedStatement insert(String SQL) throws SQLException{
       return conn.prepareStatement(SQL);
-    } catch ( Exception e) {
-      System.out.println("error during preparing statement");
-      return null;
-    }
   }
 
+  /**
+   *
+   * @param post_Text the text a user writes in a post
+   * @param courseCode the coursecode the user wants to write a post for
+   * @param email Unique Email address of the user
+   * @param typePost the type of post, needs to be either StartingPost or ReplyPost or FollowUp
+   * @return
+   * @throws SQLException
+   */
   private int createPost(String post_Text, String courseCode, String email, String typePost) throws SQLException{
       int key = generatePrimaryKey();
       this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
@@ -51,18 +66,36 @@ public class PostCtrl extends DBConn {
       return key;
   }
 
+  /**
+   *
+   * @return the current date
+   */
   private Date getDate() {
     return new Date(Calendar.getInstance().getTime().getTime());
   }
 
+  /**
+   *
+   * @return the current time
+   */
   private Time getTime() {
     return new Time(Calendar.getInstance().getTime().getTime());
   }
 
+  /**
+   *
+   * @param title Title of the post
+   * @param folderId ID if the folder
+   * @param text Text user wants to write in the STartingPost
+   * @param courseCode The coursecode the user wants to write a post for
+   * @param email Unique Email address of the user
+   * @param tags Predefined tags the user can choose to use in his/her post
+   * @return a boolean of whether the post is created or not
+   */
   public boolean createStartingPost(String title, int folderId, String text, String courseCode,
       String email, List<String> tags) {
-    this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
     try {
+      this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
       int key = this.createPost(text, courseCode, email, STARTING_POST);
       this.statementStartingPost.setInt(1, key);
       this.statementStartingPost.setString(2, title);
@@ -77,6 +110,15 @@ public class PostCtrl extends DBConn {
     }
   }
 
+  /**
+   *
+   * @param resolved boolean for if the FollowUp is resolved or not
+   * @param followUpOn Which post the user wants to write a FollowUp to
+   * @param text The text is the FollowUp
+   * @param courseCode The coursecode the user wants to write a post for
+   * @param email Unique Email address of the user
+   * @return A boolean for if the FollowUp is created or not
+   */
   public boolean createFollowUp(boolean resolved, int followUpOn, String text, String courseCode,
       String email) {
       try{
@@ -93,6 +135,18 @@ public class PostCtrl extends DBConn {
         return false;
       }
     }
+
+
+  /**
+   *
+   * @param commentOn ID of which post the user wants to comment on
+   * @param answerOn ID of which post the user wants to answer on
+   * @param typeReply type of reply, needs to be comment or answer
+   * @param text The text the user writes in the post
+   * @param courseCode The coursecode the user wants to write a post for
+   * @param email Unique Email address of the user
+   * @return A boolean for if the ReplyPost was created or not
+   */
 
   private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
       String email) {
@@ -120,6 +174,15 @@ public class PostCtrl extends DBConn {
       return false;
     }
   }
+
+  /**
+   *
+   * @param answerOn The ID of which Post the user wnats to answer
+   * @param post_Text The text the user writes in the answer
+   * @param courseCode The coursecode the user wants to write an answer for
+   * @param email Unique Email address of the user
+   * @return A boolean for if the answer was created or not
+   */
 
   public boolean createAnswerOn(int answerOn, String post_Text, String courseCode, String email) {
     String userType = this.getUserType(email);
@@ -157,6 +220,14 @@ public class PostCtrl extends DBConn {
     return createReplyPost(null, answerOn, ANSWER, post_Text, courseCode, email);
   }
 
+  /**
+   *
+   * @param commentOn The ID of which Post the user wnats to comment on
+   * @param post_Text The text the user writes in the comment
+   * @param courseCode The coursecode the user wants to write a comment for
+   * @param Email Unique Email address of the user
+   * @return A boolean for if the comment was created or not
+   */
   public boolean createCommentOn(int commentOn, String post_Text, String courseCode, String Email) {
     return createReplyPost(commentOn, null, COMMENT, post_Text,courseCode, Email);
   }
@@ -204,6 +275,11 @@ public class PostCtrl extends DBConn {
     return result;
   }
 
+  /**
+   *
+   * @param courseCode of the course.
+   * @return HashMap of the folders with the folders name and ID
+   */
   public Map<String, Integer> getFolders(String courseCode) {
     Map<String, Integer> folders = new HashMap<>();
     final String query = "Select FolderID, folder_Name " +
@@ -230,15 +306,23 @@ public class PostCtrl extends DBConn {
   }
 
 
-  public Map<Integer, String> getPosts(String CourseCode) {
-    Map<Integer, String> posts = new HashMap<>();
-    final String query = "Select PostNr, Title from StartingPost natural inner join Post where CourseCode = (?)";
+  /**
+   *
+   * @param CourseCode of the course
+   * @return A HashMap of the created posts with the postst ineteger and a list of the postst title and correspodning Folder
+   */
+  public Map<Integer, List<String>> getPosts(String CourseCode) {
+    Map<Integer, List<String>> posts = new HashMap<>();
+    final String query = "Select PostNr, Title, folder_Name From StartingPost natural inner join Post natural inner join Folder where CourseCode = (?)";
     try {
       PreparedStatement selectPost = conn.prepareStatement(query);
       selectPost.setString(1, CourseCode);
       ResultSet resultSet = selectPost.executeQuery();
       while (resultSet.next()) {
-        posts.put(resultSet.getInt("PostNr"), resultSet.getString("Title"));
+        List<String> tmpList = new ArrayList<>();
+        tmpList.add(resultSet.getString("Title"));
+        tmpList.add(resultSet.getString("folder_Name"));
+        posts.put(resultSet.getInt("PostNr"), tmpList);
       }
 
     } catch (Exception e) {
@@ -249,6 +333,17 @@ public class PostCtrl extends DBConn {
     return posts;
   }
 
+  /**
+   *
+   * @param email
+   * @return
+   */
+
+  /**
+   *
+   * @param email of the user
+   * @return Returns the usertype (Student or Instructor)
+   */
   public String getUserType(String email) {
     String userType = null;
     try {
