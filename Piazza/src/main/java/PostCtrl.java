@@ -1,10 +1,11 @@
-import java.rmi.MarshalledObject;
+import java.sql.Date;
 import java.util.*;
 import java.sql.*;
-import java.util.Date;
 
 public class PostCtrl extends DBConn {
 
+  //Tror ikke det er noe poeng i å lagre disse med mindre vi lager en egen metode
+  //for insert og deler opp, nå kunne vi like gjerne bare deklarert de inne i metodene
   private PreparedStatement statementGetPrimaryKey;
   private PreparedStatement statementPost;
   private PreparedStatement statementStartingPost;
@@ -12,18 +13,17 @@ public class PostCtrl extends DBConn {
   private PreparedStatement statementReplyPost;
   private PreparedStatement statementTag;
 
-  private Calendar calendar = Calendar.getInstance();
+  private final static String STARTING_POST = "StartingPost";
+  private final static String REPLY_POST = "ReplyPost";
+  private final static String FOLLOW_UP = "FollowUp";
+  private final static String ANSWER = "Answer";
+  private final static String COMMENT = "Comment";
 
-  //Bare en liten ting, men dette blir feil siden man kjører programmet over lengre tid,
-  //burde kanskje heller ha to hjelpemetoder for å få tid og dato
-  private Date post_Date =  new java.sql.Date(calendar.getTime().getTime());
-  private Time post_Time = new java.sql.Time(calendar.getTime().getTime());
-
-  private int generatePrimaryKey(String SQL) throws SQLException {
-    this.statementGetPrimaryKey = insert(SQL);
+  private int generatePrimaryKey() throws SQLException {
+    this.statementGetPrimaryKey = insert("Select max(postNr) From Post");
     ResultSet resultSet = statementGetPrimaryKey.executeQuery();
     if (resultSet.next()) {
-      return resultSet.getInt(1)+1;
+      return resultSet.getInt(1) + 1;
     }
       return 1;
   }
@@ -38,12 +38,12 @@ public class PostCtrl extends DBConn {
   }
 
   private int createPost(String post_Text, String courseCode, String email, String typePost) throws SQLException{
-      int key = generatePrimaryKey("Select max(PostNr) From Post");
+      int key = generatePrimaryKey();
       this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
       this.statementPost.setInt(1, key);
       this.statementPost.setString(2, post_Text);
-      this.statementPost.setDate(3, (java.sql.Date) post_Date);
-      this.statementPost.setTime(4, post_Time);
+      this.statementPost.setDate(3, getDate());
+      this.statementPost.setTime(4, getTime());
       this.statementPost.setString(5, courseCode);
       this.statementPost.setString(6, email);
       this.statementPost.setString(7, typePost);
@@ -51,11 +51,19 @@ public class PostCtrl extends DBConn {
       return key;
   }
 
+  private Date getDate() {
+    return new Date(Calendar.getInstance().getTime().getTime());
+  }
+
+  private Time getTime() {
+    return new Time(Calendar.getInstance().getTime().getTime());
+  }
+
   public boolean createStartingPost(String title, int folderId, String text, String courseCode,
       String email, List<String> tags) {
     this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
     try {
-      int key = this.createPost(text, courseCode, email, "StartingPost");
+      int key = this.createPost(text, courseCode, email, STARTING_POST);
       this.statementStartingPost.setInt(1, key);
       this.statementStartingPost.setString(2, title);
       this.statementStartingPost.setInt(3, folderId);
@@ -72,7 +80,7 @@ public class PostCtrl extends DBConn {
   public boolean createFollowUp(boolean resolved, int followUpOn, String text, String courseCode,
       String email) {
       try{
-        int key = this.createPost(text, courseCode, email, "FollowUp");
+        int key = this.createPost(text, courseCode, email, FOLLOW_UP);
         this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
         this.statementFollowUp.setInt(1, key);
         this.statementFollowUp.setBoolean(2, resolved);
@@ -89,7 +97,7 @@ public class PostCtrl extends DBConn {
   private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
       String email) {
     try{
-      int key = this.createPost(text, courseCode, email, "ReplyPost");
+      int key = this.createPost(text, courseCode, email, REPLY_POST);
       this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
       this.statementReplyPost.setInt(1, key);
 
@@ -99,9 +107,9 @@ public class PostCtrl extends DBConn {
         this.statementReplyPost.setInt(2, commentOn);
 
       if (answerOn == null)
-        this.statementReplyPost.setInt(3, java.sql.Types.NULL);
+        this.statementReplyPost.setNull(3, java.sql.Types.NULL);
       else
-        this.statementReplyPost.setNull(3, answerOn);
+        this.statementReplyPost.setInt(3, answerOn);
 
       this.statementReplyPost.setString(4, typeReply);
       this.statementReplyPost.execute();
@@ -118,40 +126,42 @@ public class PostCtrl extends DBConn {
     String query = "Select user_Type, PostNr from User natural inner join Post natural inner join ReplyPost where CourseCode= (?) and AnswerOn = (?)";
     try {
       PreparedStatement answerStatement = conn.prepareStatement(query);
-      System.out.println(courseCode);
-      answerStatement.setString(1,courseCode);
-      answerStatement.setInt(2,answerOn);
+      answerStatement.setString(1, courseCode);
+      answerStatement.setInt(2, answerOn);
       ResultSet resultSet = answerStatement.executeQuery();
-      if (resultSet.next()) {
 
+      boolean update = false;
+      int updatePostNr = 0;
+      while (resultSet.next()) {
         if (resultSet.getString("user_Type").equals(userType)) {
-          int postNr = resultSet.getInt("PostNr");
-          System.out.println(postNr);
-          String updateQuery = "Update Post set post_Text = (?), post_Date = (?), post_Time = (?), Email = (?) where PostNr =(?)";
-          PreparedStatement updatePostReply = conn.prepareStatement(updateQuery);
-          updatePostReply.setString(1, post_Text);
-          updatePostReply.setDate(2, (java.sql.Date) this.post_Date);
-          updatePostReply.setTime(3, this.post_Time);
-          updatePostReply.setString(4, email);
-          updatePostReply.setInt(5, postNr);
-          updatePostReply.executeUpdate();
-          return true;
+          update = true;
+          updatePostNr = resultSet.getInt("PostNr");
         }
+      }
+      if (update) {
+        String updateQuery = "Update Post set post_Text = (?), post_Date = (?), post_Time = (?), Email = (?) where PostNr =(?)";
+        PreparedStatement updatePostReply = conn.prepareStatement(updateQuery);
+        updatePostReply.setString(1, post_Text);
+        updatePostReply.setDate(2, getDate());
+        updatePostReply.setTime(3, getTime());
+        updatePostReply.setString(4, email);
+        updatePostReply.setInt(5, updatePostNr);
+        updatePostReply.executeUpdate();
+        return true;
       }
     } catch (Exception e) {
       System.err.println("db error during create answer query");
       System.err.println(e.getMessage());
       return false;
     }
-    return createReplyPost(null, answerOn, "Answer", post_Text, courseCode, email);
+    return createReplyPost(null, answerOn, ANSWER, post_Text, courseCode, email);
   }
 
   public boolean createCommentOn(int commentOn, String post_Text, String courseCode, String Email) {
-    return createReplyPost(commentOn, null, "Comment", post_Text,courseCode, Email);
+    return createReplyPost(commentOn, null, COMMENT, post_Text,courseCode, Email);
   }
 
   private void createTaggedStartingPost(int postNr, List<String> tags) throws SQLException{
-
     this.statementTag = insert("INSERT INTO TaggedStartingPost VALUES ((?),(?))");
     for (String tag : tags) {
       this.statementTag.setInt(1, postNr);
