@@ -6,7 +6,7 @@ Student1 --> ConsoleUI: "Exam fall 2008 question 1"
 ConsoleUI -> PostCtrl: getFolders("TDT4145")
 PostCtrl --> ConsoleUI: Map<"folder_name", FolderID>
 ConsoleUI -> Student1: "Choose folder: "
-ConsoleUI -> Student1: //Shows folder option//
+ConsoleUI -> Student1: //Shows folder options//
 Student1 --> ConsoleUI: "1"  //(Input for option: "Exam")//
 ConsoleUI -> Student1: "Choose tags: "
 ConsoleUI -> ConsoleUI: getTag()

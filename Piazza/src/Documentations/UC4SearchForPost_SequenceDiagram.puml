@@ -5,6 +5,6 @@ ConsoleUI -> Student1: "Search after: "
 Student1 --> ConsoleUI: "WAL"
 ConsoleUI --> Student1: "Search results: "
 ConsoleUI -> PostCtrl: searchPosts(courseCode, keyword)
-PostCtrl --> ConsoleUI: List with the corresponding postIds
+PostCtrl --> ConsoleUI: List with the corresponding postNrs
 ConsoleUI --> Student1: //Shows the list//
 @enduml

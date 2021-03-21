@@ -137,10 +137,10 @@ public class ConsoleUI {
             System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ "("+entry.getValue().get(1)+")");
         }
         System.out.print("Your choice: ");
-        int answer = inputScanner.nextInt();
+        int answerOnPost = inputScanner.nextInt();
         System.out.println("Text:");
         final String answerText = inputScanner.next();
-        if (postCtrl.createAnswerOn(answer, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
+        if (postCtrl.createAnswerOn(answerOnPost, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
             System.out.println("New answer created!");
         else
             System.out.println("Something went wrong");

@@ -1,6 +1,6 @@
 @startuml
 Actor Instructor1
-Instructor1 -> ConsoleUI: "View stats for course"
+Instructor1 -> ConsoleUI: viewStats()
 ConsoleUI -> StatsCtrl: getUserStats(email, course)
 StatsCtrl -> StatsCtrl: verifyInstructor(email) && verifyUserInCourse(email, course)
 StatsCtrl --> StatsCtrl: true

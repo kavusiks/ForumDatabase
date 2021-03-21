@@ -1,7 +1,20 @@
 @startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+actor Instructor1
+Instructor1 -> ConsoleUI: createAnswerOn()
+ConsoleUI -> Instructor1: "Select post: "
+ConsoleUI -> PostCtrl: getPosts(courseCode).entrySet()
+PostCtrl --> ConsoleUI: A set of the mapping by (postNr, Title)
+ConsoleUI -> Instructor1: //Shows StartingPost options//
+Instructor1 --> ConsoleUI: "2" //(Input value for option: "Første tittel (Folder: Exam)"//
+ConsoleUI -> Instructor1: "Text: "
+Instructor1 --> ConsoleUI: "Dette er et svar"
+ConsoleUI -> PostCtrl: createAnswerOn(answerOnPost, answerText, courseCode, userEmail)
+PostCtrl -> PostCtrl: getUserType(userEmail)
+PostCtrl --> PostCtrl: "Instructor"
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+PostCtrl -> PostCtrl: createReplyPost(null, answerOnPost, "Answer", answerText, courseCode, userEmail )
+PostCtrl -> PostCtrl: createPost(answerText, courseCode, userEmail, "ReplyPost")
+PostCtrl --> PostCtrl: true
+PostCtrl --> ConsoleUI: true
+ConsoleUI --> Instructor1: "New answer created!"
 @enduml

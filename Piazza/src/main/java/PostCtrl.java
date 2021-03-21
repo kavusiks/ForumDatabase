@@ -177,20 +177,20 @@ public class PostCtrl extends DBConn {
 
   /**
    *
-   * @param answerOn The ID of which Post the user wnats to answer
+   * @param answerOnPost The ID of which Post the user wnats to answer
    * @param post_Text The text the user writes in the answer
    * @param courseCode The coursecode the user wants to write an answer for
    * @param email Unique Email address of the user
    * @return A boolean for if the answer was created or not
    */
 
-  public boolean createAnswerOn(int answerOn, String post_Text, String courseCode, String email) {
+  public boolean createAnswerOn(int answerOnPost, String post_Text, String courseCode, String email) {
     String userType = this.getUserType(email);
     String query = "Select user_Type, PostNr from User natural inner join Post natural inner join ReplyPost where CourseCode= (?) and AnswerOn = (?)";
     try {
       PreparedStatement answerStatement = conn.prepareStatement(query);
       answerStatement.setString(1, courseCode);
-      answerStatement.setInt(2, answerOn);
+      answerStatement.setInt(2, answerOnPost);
       ResultSet resultSet = answerStatement.executeQuery();
 
       boolean update = false;
@@ -217,7 +217,7 @@ public class PostCtrl extends DBConn {
       System.err.println(e.getMessage());
       return false;
     }
-    return createReplyPost(null, answerOn, ANSWER, post_Text, courseCode, email);
+    return createReplyPost(null, answerOnPost, ANSWER, post_Text, courseCode, email);
   }
 
   /**
