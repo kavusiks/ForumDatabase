@@ -4,15 +4,6 @@ import java.sql.*;
 
 public class PostCtrl extends DBConn {
 
-  //Tror ikke det er noe poeng i å lagre disse med mindre vi lager en egen metode
-  //for insert og deler opp, nå kunne vi like gjerne bare deklarert de inne i metodene
-  private PreparedStatement statementGetPrimaryKey;
-  private PreparedStatement statementPost;
-  private PreparedStatement statementStartingPost;
-  private PreparedStatement statementFollowUp;
-  private PreparedStatement statementReplyPost;
-  private PreparedStatement statementTag;
-
   private final static String STARTING_POST = "StartingPost";
   private final static String REPLY_POST = "ReplyPost";
   private final static String FOLLOW_UP = "FollowUp";
@@ -21,53 +12,46 @@ public class PostCtrl extends DBConn {
 
   /**
    * generates a unique primary key for a Post
-   * @return the ineteger for the primary key
-   * @throws SQLException
+   * @return the generated key
+   * @throws SQLException if generation failed
    */
   private int generatePrimaryKey() throws SQLException {
-    this.statementGetPrimaryKey = insert("Select max(postNr) From Post");
-    ResultSet resultSet = statementGetPrimaryKey.executeQuery();
+    String query = "Select max(postNr) From Post";
+    PreparedStatement statement = conn.prepareStatement(query);
+    ResultSet resultSet = statement.executeQuery();
     if (resultSet.next()) {
       return resultSet.getInt(1) + 1;
     }
       return 1;
   }
 
-  /**
-   *
-   * @param SQL
-   * @return prepares a statment
-   * @throws SQLException
-   */
-  public PreparedStatement insert(String SQL) throws SQLException{
-      return conn.prepareStatement(SQL);
-  }
 
   /**
    *
    * @param post_Text the text a user writes in a post
-   * @param courseCode the coursecode the user wants to write a post for
+   * @param courseCode for the course the user wants to write a post for
    * @param email Unique Email address of the user
    * @param typePost the type of post, needs to be either StartingPost or ReplyPost or FollowUp
-   * @return
-   * @throws SQLException
+   * @return the postNr of the created post
+   * @throws SQLException if creation failed
    */
   private int createPost(String post_Text, String courseCode, String email, String typePost) throws SQLException{
+      final String query = "INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))";
+      PreparedStatement statement = conn.prepareStatement(query);
       int key = generatePrimaryKey();
-      this.statementPost = insert("INSERT INTO Post VALUES ((?),(?),(?),(?),(?),(?),(?))");
-      this.statementPost.setInt(1, key);
-      this.statementPost.setString(2, post_Text);
-      this.statementPost.setDate(3, getDate());
-      this.statementPost.setTime(4, getTime());
-      this.statementPost.setString(5, courseCode);
-      this.statementPost.setString(6, email);
-      this.statementPost.setString(7, typePost);
-        statementPost.execute();
+
+      statement.setInt(1, key);
+      statement.setString(2, post_Text);
+      statement.setDate(3, getDate());
+      statement.setTime(4, getTime());
+      statement.setString(5, courseCode);
+      statement.setString(6, email);
+      statement.setString(7, typePost);
+      statement.execute();
       return key;
   }
 
   /**
-   *
    * @return the current date
    */
   private Date getDate() {
@@ -75,7 +59,6 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @return the current time
    */
   private Time getTime() {
@@ -83,24 +66,26 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @param title Title of the post
    * @param folderId ID if the folder
    * @param text Text user wants to write in the STartingPost
-   * @param courseCode The coursecode the user wants to write a post for
+   * @param courseCode for the course the user wants to write a post for
    * @param email Unique Email address of the user
-   * @param tags Predefined tags the user can choose to use in his/her post
+   * @param tags User chosen tags
    * @return a boolean of whether the post is created or not
    */
   public boolean createStartingPost(String title, int folderId, String text, String courseCode,
       String email, List<String> tags) {
     try {
-      this.statementStartingPost = insert("INSERT INTO StartingPost VALUES ((?),(?),(?))");
+      String query = "INSERT INTO StartingPost VALUES ((?),(?),(?))";
+      PreparedStatement statement = conn.prepareStatement(query);
       int key = this.createPost(text, courseCode, email, STARTING_POST);
-      this.statementStartingPost.setInt(1, key);
-      this.statementStartingPost.setString(2, title);
-      this.statementStartingPost.setInt(3, folderId);
-      this.statementStartingPost.execute();
+
+      statement.setInt(1, key);
+      statement.setString(2, title);
+      statement.setInt(3, folderId);
+      statement.execute();
+
       this.createTaggedStartingPost(key, tags);
       return true;
     } catch (Exception e) {
@@ -111,23 +96,24 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @param resolved boolean for if the FollowUp is resolved or not
    * @param followUpOn Which post the user wants to write a FollowUp to
    * @param text The text is the FollowUp
-   * @param courseCode The coursecode the user wants to write a post for
+   * @param courseCode of the course the user wants to write a post for
    * @param email Unique Email address of the user
    * @return A boolean for if the FollowUp is created or not
    */
   public boolean createFollowUp(boolean resolved, int followUpOn, String text, String courseCode,
       String email) {
       try{
+        String query = "INSERT INTO FollowUp VALUES ((?),(?),(?))";
+        PreparedStatement statement = conn.prepareStatement(query);
         int key = this.createPost(text, courseCode, email, FOLLOW_UP);
-        this.statementFollowUp = insert("INSERT INTO FollowUp VALUES ((?),(?),(?))");
-        this.statementFollowUp.setInt(1, key);
-        this.statementFollowUp.setBoolean(2, resolved);
-        this.statementFollowUp.setInt(3, followUpOn);
-        this.statementFollowUp.execute();
+
+        statement.setInt(1, key);
+        statement.setBoolean(2, resolved);
+        statement.setInt(3, followUpOn);
+        statement.execute();
         return true;
       } catch (Exception e) {
         System.err.println("db error during create follow up query");
@@ -141,9 +127,10 @@ public class PostCtrl extends DBConn {
    *
    * @param commentOn ID of which post the user wants to comment on
    * @param answerOn ID of which post the user wants to answer on
+   *
    * @param typeReply type of reply, needs to be comment or answer
    * @param text The text the user writes in the post
-   * @param courseCode The coursecode the user wants to write a post for
+   * @param courseCode of the course the user wants to write a reply in
    * @param email Unique Email address of the user
    * @return A boolean for if the ReplyPost was created or not
    */
@@ -151,22 +138,25 @@ public class PostCtrl extends DBConn {
   private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
       String email) {
     try{
+      String query = "INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))";
+      PreparedStatement statement = conn.prepareStatement(query);
       int key = this.createPost(text, courseCode, email, REPLY_POST);
-      this.statementReplyPost = insert("INSERT INTO ReplyPost VALUES ((?),(?),(?),(?))");
-      this.statementReplyPost.setInt(1, key);
+
+      statement.setInt(1, key);
 
       if (commentOn == null)
-        this.statementReplyPost.setNull(2, java.sql.Types.NULL);
+        statement.setNull(2, java.sql.Types.NULL);
       else
-        this.statementReplyPost.setInt(2, commentOn);
+        statement.setInt(2, commentOn);
 
       if (answerOn == null)
-        this.statementReplyPost.setNull(3, java.sql.Types.NULL);
+        statement.setNull(3, java.sql.Types.NULL);
       else
-        this.statementReplyPost.setInt(3, answerOn);
+        statement.setInt(3, answerOn);
 
-      this.statementReplyPost.setString(4, typeReply);
-      this.statementReplyPost.execute();
+      statement.setString(4, typeReply);
+
+      statement.execute();
       return true;
     } catch (Exception e) {
       System.err.println("db error during create reply query");
@@ -176,11 +166,10 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
-   * @param answerOnPost The ID of which Post the user wnats to answer
+   * @param answerOnPost The ID of which Post the user wants to answer
    * @param post_Text The text the user writes in the answer
-   * @param courseCode The coursecode the user wants to write an answer for
-   * @param email Unique Email address of the user
+   * @param courseCode of the course the user wants to write an answer for
+   * @param email of the user
    * @return A boolean for if the answer was created or not
    */
 
@@ -193,6 +182,7 @@ public class PostCtrl extends DBConn {
       answerStatement.setInt(2, answerOnPost);
       ResultSet resultSet = answerStatement.executeQuery();
 
+      // Checks if there already exists an answer for this type of user (Student/Instructor)
       boolean update = false;
       int updatePostNr = 0;
       while (resultSet.next()) {
@@ -201,6 +191,7 @@ public class PostCtrl extends DBConn {
           updatePostNr = resultSet.getInt("PostNr");
         }
       }
+      // If an answer already exists, the old answer is updated
       if (update) {
         String updateQuery = "Update Post set post_Text = (?), post_Date = (?), post_Time = (?), Email = (?) where PostNr =(?)";
         PreparedStatement updatePostReply = conn.prepareStatement(updateQuery);
@@ -217,6 +208,7 @@ public class PostCtrl extends DBConn {
       System.err.println(e.getMessage());
       return false;
     }
+    // If a previous answer does not exist, a new answer is created.
     return createReplyPost(null, answerOnPost, ANSWER, post_Text, courseCode, email);
   }
 
@@ -224,7 +216,7 @@ public class PostCtrl extends DBConn {
    *
    * @param commentOn The ID of which Post the user wnats to comment on
    * @param post_Text The text the user writes in the comment
-   * @param courseCode The coursecode the user wants to write a comment for
+   * @param courseCode of the course the user wants to write a comment for
    * @param Email Unique Email address of the user
    * @return A boolean for if the comment was created or not
    */
@@ -232,12 +224,16 @@ public class PostCtrl extends DBConn {
     return createReplyPost(commentOn, null, COMMENT, post_Text,courseCode, Email);
   }
 
-  private void createTaggedStartingPost(int postNr, List<String> tags) throws SQLException{
-    this.statementTag = insert("INSERT INTO TaggedStartingPost VALUES ((?),(?))");
+  /**
+   * Adds all of the given tags to the post with the given postNr.
+   */
+  private void createTaggedStartingPost(int postNr, List<String> tags) throws SQLException {
+    String query = "INSERT INTO TaggedStartingPost VALUES ((?),(?))";
+    PreparedStatement statement = conn.prepareStatement(query);
     for (String tag : tags) {
-      this.statementTag.setInt(1, postNr);
-      this.statementTag.setString(2, tag);
-      this.statementTag.execute();
+      statement.setInt(1, postNr);
+      statement.setString(2, tag);
+      statement.execute();
     }
   }
 
@@ -276,7 +272,6 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @param courseCode of the course.
    * @return HashMap of the folders with the folders name and ID
    */
@@ -307,9 +302,8 @@ public class PostCtrl extends DBConn {
 
 
   /**
-   *
    * @param CourseCode of the course
-   * @return A HashMap of the created posts with the postst ineteger and a list of the postst title and correspodning Folder
+   * @return A Map of the created posts with the postNr and a list with list[0]: title and list[1]: post folder
    */
   public Map<Integer, List<String>> getPosts(String CourseCode) {
     Map<Integer, List<String>> posts = new HashMap<>();
@@ -335,14 +329,8 @@ public class PostCtrl extends DBConn {
 
   /**
    *
-   * @param email
-   * @return
-   */
-
-  /**
-   *
    * @param email of the user
-   * @return Returns the usertype (Student or Instructor)
+   * @return the user type (Student or Instructor)
    */
   public String getUserType(String email) {
     String userType = null;
