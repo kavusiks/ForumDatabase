@@ -1,5 +1,8 @@
 import java.util.*;
 
+/**
+ * The ConsoleClass for the terminal based userinteractions.
+ */
 public class ConsoleUI {
 
     private String loggedInEmail;

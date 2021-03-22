@@ -1,9 +1,12 @@
-/**
- *
- * @author
- */
 import java.sql.*;
 import java.util.Properties;
+
+/**
+ * Abstract method used by all controllers class to communicate with the database.
+ *
+ * (Denne klassen er hentet fra EKT-eksemplet vist under forelesning 5.03.21)
+ * @author Svein Erik
+ */
 public abstract class DBConn {
   protected Connection conn;
   protected void connect() {

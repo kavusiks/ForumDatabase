@@ -10,7 +10,9 @@ public class StatsCtrl extends DBConn {
 
   /**
    * Method used to verify that an user is og user_Type "Instructor".
-   * @param email the user's Email(pk)
+   *
+   * @param email the user's Email
+   *
    * @return true if user is of type "Instructor"
    */
   public boolean verifyInstructor(String email) {
@@ -23,20 +25,20 @@ public class StatsCtrl extends DBConn {
       while (result.next()) {
         userType = result.getString("user_Type");
       }
-      //System.out.println("userType: " +userType);
       if(userType.equals("Instructor")) return true;
     } catch (Exception e) {
       System.out.println("db error during query for verifying user is instructor");
       return false;
     }
-    //System.out.println("User is not an instructor or is not registered in the given course");
     return false;
   }
   
   /**
    * Method used to verify that an user is in a given course".
+   *
    * @param email the user to check
    * @param course the course to check in
+   *
    * @return true if user is in the given course
    */
   private boolean verifyUserInCourse(String email, String course) {
@@ -66,6 +68,7 @@ public class StatsCtrl extends DBConn {
 
   /**
    * Method used to print user stats for a given course.
+   *
    * @param course the given course
    */
   private void printStats(String course) {
@@ -93,6 +96,7 @@ public class StatsCtrl extends DBConn {
   /**
    * Method used to print user stats for given course
    * after verifying that user calling this method is an instructor and that the instructor belongs to this course.
+   *
    * @param instructorEmail the user calling this method
    * @param courseCode the course to view stats for
    */

@@ -2,8 +2,13 @@ import java.sql.Date;
 import java.util.*;
 import java.sql.*;
 
+/**
+ * Controller class used to maintain posts, answers, followUps and comments within a course.
+ * Mainly used in usecase 2,3 and 4
+ */
 public class PostCtrl extends DBConn {
 
+  //Subclasses of Post
   private final static String STARTING_POST = "StartingPost";
   private final static String REPLY_POST = "ReplyPost";
   private final static String FOLLOW_UP = "FollowUp";
@@ -11,8 +16,10 @@ public class PostCtrl extends DBConn {
   private final static String COMMENT = "Comment";
 
   /**
-   * generates a unique primary key for a Post
+   * Generates a unique primary key for a Post
+   *
    * @return the generated key
+   *
    * @throws SQLException if generation failed
    */
   private int generatePrimaryKey() throws SQLException {
@@ -27,12 +34,13 @@ public class PostCtrl extends DBConn {
 
 
   /**
-   *
    * @param post_Text the text a user writes in a post
    * @param courseCode for the course the user wants to write a post for
    * @param email Unique Email address of the user
    * @param typePost the type of post, needs to be either StartingPost or ReplyPost or FollowUp
+   *
    * @return the postNr of the created post
+   *
    * @throws SQLException if creation failed
    */
   private int createPost(String post_Text, String courseCode, String email, String typePost) throws SQLException{
@@ -72,6 +80,7 @@ public class PostCtrl extends DBConn {
    * @param courseCode for the course the user wants to write a post for
    * @param email Unique Email address of the user
    * @param tags User chosen tags
+   *
    * @return a boolean of whether the post is created or not
    */
   public boolean createStartingPost(String title, int folderId, String text, String courseCode,
@@ -101,6 +110,7 @@ public class PostCtrl extends DBConn {
    * @param text The text is the FollowUp
    * @param courseCode of the course the user wants to write a post for
    * @param email Unique Email address of the user
+   *
    * @return A boolean for if the FollowUp is created or not
    */
   public boolean createFollowUp(boolean resolved, int followUpOn, String text, String courseCode,
@@ -124,17 +134,15 @@ public class PostCtrl extends DBConn {
 
 
   /**
-   *
    * @param commentOn ID of which post the user wants to comment on
    * @param answerOn ID of which post the user wants to answer on
-   *
    * @param typeReply type of reply, needs to be comment or answer
    * @param text The text the user writes in the post
    * @param courseCode of the course the user wants to write a reply in
    * @param email Unique Email address of the user
+   *
    * @return A boolean for if the ReplyPost was created or not
    */
-
   private boolean createReplyPost(Integer commentOn, Integer answerOn, String typeReply, String text, String courseCode,
       String email) {
     try{
@@ -166,13 +174,17 @@ public class PostCtrl extends DBConn {
   }
 
   /**
+   * Method used to create answer on StartingPost. Each StartingPost can only have two answers,
+   * one from an instructor and one from a student. If an answer already exist from one of these userTypes,
+   * it will be updated with the new answer.
+   *
    * @param answerOnPost The ID of which Post the user wants to answer
    * @param post_Text The text the user writes in the answer
    * @param courseCode of the course the user wants to write an answer for
    * @param email of the user
+   *
    * @return A boolean for if the answer was created or not
    */
-
   public boolean createAnswerOn(int answerOnPost, String post_Text, String courseCode, String email) {
     String userType = this.getUserType(email);
     String query = "Select user_Type, PostNr from User natural inner join Post natural inner join ReplyPost where CourseCode= (?) and AnswerOn = (?)";
@@ -213,7 +225,6 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @param commentOn The ID of which Post the user wnats to comment on
    * @param post_Text The text the user writes in the comment
    * @param courseCode of the course the user wants to write a comment for
@@ -239,8 +250,10 @@ public class PostCtrl extends DBConn {
 
   /***
    * Searches for the keyword in posts published in the given course.
+   *
    * @param courseCode of the course.
    * @param keyword that is to be searched for.
+   *
    * @return a list with postNr of matched posts.
    */
   public List<Integer> searchPosts(String courseCode, String keyword) {
@@ -273,6 +286,7 @@ public class PostCtrl extends DBConn {
 
   /**
    * @param courseCode of the course.
+   *
    * @return HashMap of the folders with the folders name and ID
    */
   public Map<String, Integer> getFolders(String courseCode) {
@@ -303,6 +317,7 @@ public class PostCtrl extends DBConn {
 
   /**
    * @param CourseCode of the course
+   *
    * @return A Map of the created posts with the postNr and a list with list[0]: title and list[1]: post folder
    */
   public Map<Integer, List<String>> getPosts(String CourseCode) {
@@ -328,8 +343,8 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @param email of the user
+   *
    * @return the user type (Student or Instructor)
    */
   public String getUserType(String email) {
