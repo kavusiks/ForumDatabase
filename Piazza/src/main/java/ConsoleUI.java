@@ -67,6 +67,10 @@ public class ConsoleUI {
                 break;
             validTags.remove(tag);
             chosenTags.add(tag);
+            System.out.println("Do you want to add more tags? (y/n)");
+            final String tagAnswer = inputScanner.next();
+            if (tagAnswer.toLowerCase().equals("n"))
+                break;
         }
 
         System.out.println("Text:");
@@ -134,7 +138,7 @@ public class ConsoleUI {
     private void createAnswerOn() {
         System.out.println("Select post:");
         for(Map.Entry<Integer, List<String>> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
-            System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ "("+entry.getValue().get(1)+")");
+            System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ " ("+entry.getValue().get(1)+")");
         }
         System.out.print("Your choice: ");
         int answerOnPost = inputScanner.nextInt();

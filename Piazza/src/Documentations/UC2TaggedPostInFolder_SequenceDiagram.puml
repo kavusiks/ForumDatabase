@@ -4,7 +4,7 @@ Student1 -> ConsoleUI: createStartingPost()
 ConsoleUI -> Student1: "Title: "
 Student1 --> ConsoleUI: "Exam fall 2008 question 1"
 ConsoleUI -> PostCtrl: getFolders("TDT4145")
-PostCtrl --> ConsoleUI: Map<"folder_name", FolderID>
+PostCtrl --> ConsoleUI: Map<"folder_Name", FolderID>
 ConsoleUI -> Student1: "Choose folder: "
 ConsoleUI -> Student1: //Shows folder options//
 Student1 --> ConsoleUI: "1"  //(Input for option: "Exam")//
@@ -14,7 +14,7 @@ ConsoleUI -> Student1: //Shows tags option//
 Student1 --> ConsoleUI: "1" //(Input for option: "Question"//
 ConsoleUI -> Student1: "Text: "
 Student1 --> ConsoleUI: "Is this correct way to....."
-ConsoleUI -> PostCtrl: createStartingPost(title, folderId, text, courseOde, email, chosenTags)
+ConsoleUI -> PostCtrl: createStartingPost(title, folderId, text, courseCode, email, chosenTags)
 PostCtrl -> PostCtrl: createTaggedStartingPost(key, tags)
 PostCtrl --> ConsoleUI: true
 ConsoleUI --> Student1: "New post created!"
