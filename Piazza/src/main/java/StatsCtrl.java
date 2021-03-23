@@ -4,13 +4,15 @@ import java.sql.ResultSet;
 /**
  * Controller class used to get stats for a course.
  * Only instructor within a given course can view the stats
- * Mainly used in usecase 5
+ * Mainly used in use case 5
  */
 public class StatsCtrl extends DBConn {
 
   /**
    * Method used to verify that an user is og user_Type "Instructor".
-   * @param email the user's Email(pk)
+   *
+   * @param email the user's Email
+   *
    * @return true if user is of type "Instructor"
    */
   public boolean verifyInstructor(String email) {
@@ -23,20 +25,20 @@ public class StatsCtrl extends DBConn {
       while (result.next()) {
         userType = result.getString("user_Type");
       }
-      //System.out.println("userType: " +userType);
       if(userType.equals("Instructor")) return true;
     } catch (Exception e) {
       System.out.println("db error during query for verifying user is instructor");
       return false;
     }
-    //System.out.println("User is not an instructor or is not registered in the given course");
     return false;
   }
   
   /**
    * Method used to verify that an user is in a given course".
+   *
    * @param email the user to check
    * @param course the course to check in
+   *
    * @return true if user is in the given course
    */
   private boolean verifyUserInCourse(String email, String course) {
@@ -66,12 +68,13 @@ public class StatsCtrl extends DBConn {
 
   /**
    * Method used to print user stats for a given course.
+   *
    * @param course the given course
    */
   private void printStats(String course) {
     try {
       String query =
-          "Select * from ( Select uc1.Email, count(vp1.PostNr) as AntallReadPost from UserInCourse as uc1 left outer join ( ViewedPost as vp1 inner join  StartingPost as sp1 on vp1.PostNr = sp1.PostNr) on uc1.Email = vp1.Email where uc1.CourseCode = (?) group by uc1.Email) as ReadPost natural inner join ( select uc2.Email, count(p2.PostNr) as AntallCreatedPost from UserInCourse as uc2 left outer join Post as p2 on uc2.CourseCode=p2.CourseCode and uc2.Email = p2.Email where uc2.CourseCode = (?) group by uc2.Email) as CreatedPost order by ReadPost.AntallReadPost desc";
+          "Select * from ( Select uc1.Email, count(vp1.PostNr) as NumberOfReadPost from UserInCourse as uc1 left outer join ( ViewedPost as vp1 inner join  StartingPost as sp1 on vp1.PostNr = sp1.PostNr) on uc1.Email = vp1.Email where uc1.CourseCode = (?) group by uc1.Email) as ReadPost natural inner join ( select uc2.Email, count(p2.PostNr) as NumberOfCreatedPost from UserInCourse as uc2 left outer join Post as p2 on uc2.CourseCode=p2.CourseCode and uc2.Email = p2.Email where uc2.CourseCode = (?) group by uc2.Email) as CreatedPost order by ReadPost.NumberOfReadPost desc";
       PreparedStatement statement = conn.prepareStatement(query);
       statement.setString(1, course);
       statement.setString(2, course);
@@ -81,8 +84,8 @@ public class StatsCtrl extends DBConn {
       System.out.format("| Email                          | Read | Created |%n");
       System.out.format("+--------------------------------+------+---------|%n");
       while (result.next()) {
-        System.out.format(tableAlignmentFormat, result.getString("Email"), result.getString("AntallReadPost"),
-            result.getString("AntallCreatedPost"));
+        System.out.format(tableAlignmentFormat, result.getString("Email"), result.getString("NumberOfReadPost"),
+            result.getString("NumberOfCreatedPost"));
       }
       System.out.format("+--------------------------------+------+---------|%n");
     } catch (Exception e) {
@@ -93,6 +96,7 @@ public class StatsCtrl extends DBConn {
   /**
    * Method used to print user stats for given course
    * after verifying that user calling this method is an instructor and that the instructor belongs to this course.
+   *
    * @param instructorEmail the user calling this method
    * @param courseCode the course to view stats for
    */

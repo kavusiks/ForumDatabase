@@ -24,6 +24,28 @@ class UserAuthCtrl {
 +login(String, String)
 }
 
+class PostCtrl {
+-{static} String STARTING_POST
+-{static} String REPLY_POST
+-{static} String FOLLOW_UP
+-{static} String ANSWER
+-{static} String COMMENT
+-generatePrimaryKey()
+-createPost(String, String, String, String)
+-getDate()
+-getTime()
++createStartingPost(String, int, String, String, String, List<String>)
++createFollowUp(boolean, int, String, String, String)
+-createReplyPost(Integer, Integer, String, String, String)
++createAnswerOn(int, String, String, String)
++createCommentOn(int, String, String, String)
+-createTaggedStartingPost(int, List<String>)
++searchPosts(String, String)
++getFolders(String)
++getPosts(String)
++getUserType(String)
+}
+
 class StatsCtrl {
 +verifyInstructor(String)
 -verifyUserInCourse(String, String)
@@ -32,11 +54,19 @@ class StatsCtrl {
 }
 
 class ConsoleUI {
-UserAuthCtrl authCtrl;
-PostCtrl postCtrl;
-StatsCtrl statsCtrl;
-
-
+-String loggedInEmail
+-{static}ACTIVE_COURSE_CODE
+-List<String> ALL_TAGS
+-Scanner inputScanner
++login()
++createStartingPost()
+-getTag(List<String>)
++searchPosts()
++chooseAction()
+-createAnswerOn()
++viewStats()
+-invalidAction()
++{static}main(String[])
 }
 
 

@@ -1,11 +1,19 @@
 import java.sql.*;
 import java.util.Properties;
+
+/**
+ * Abstract class used by all controller classes to communicate with the database.
+ *
+ * (Denne klassen er hentet fra EKT-eksemplet vist under forelesning 5.03.21)
+ * @author Svein Erik
+ */
+
 public abstract class DBConn {
-  /**
-   * An abstract class that contains a method for connecting to the database.
-   * Every controller class extends from this class.
-   */
   protected Connection conn;
+
+  /**
+   * Connects to the database.
+   */
   protected void connect() {
     try {
       Class.forName("com.mysql.cj.jdbc.Driver");

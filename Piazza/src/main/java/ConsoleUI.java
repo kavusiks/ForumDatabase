@@ -1,16 +1,24 @@
 import java.util.*;
 
+/**
+ * Class for console based user interactions.
+ */
 public class ConsoleUI {
 
     private String loggedInEmail;
+    private final UserAuthCtrl authCtrl;
+    private final PostCtrl postCtrl;
+    private final StatsCtrl statsCtrl;
+
+    private final Scanner inputScanner;
+
     private final String ACTIVE_COURSE_CODE = "TDT4145";
+    // Predefined tags for a StartingPost
     private final List<String> ALL_TAGS = Arrays.asList("questions", "announcements", "homework", "homework solutions", "lectures notes", "general announcements");
-    private UserAuthCtrl authCtrl;
-    private PostCtrl postCtrl;
-    private StatsCtrl statsCtrl;
 
-    private Scanner inputScanner;
-
+    /**
+     * Connects all controllers to the database and sets up console input scanner.
+     */
     public ConsoleUI() {
         authCtrl = new UserAuthCtrl();
         postCtrl = new PostCtrl();
@@ -27,6 +35,7 @@ public class ConsoleUI {
 
     /***
      * Takes in email and password from console and tries to login.
+     *
      * @return true if user was logged in, false otherwise
      */
     public boolean login() {
@@ -55,18 +64,20 @@ public class ConsoleUI {
 
         System.out.println("Choose folder: ");
 
-        // Gets all the course folders and displays them with indexes
-        Map<String, Integer> folders = postCtrl.getFolders(ACTIVE_COURSE_CODE);
-        Map<Integer, String> folderIndexes = new HashMap<>();
-        int i = 1;
-        for (String folderName : folders.keySet()) {
-            folderIndexes.put(i, folderName);
-            System.out.println(String.format("(%d) %s", i++, folderName));
+        // Gets all the course folders and displays them with ID, name and parent folder name.
+        Map<Integer, List<String>> folders = postCtrl.getFolders(ACTIVE_COURSE_CODE);
+        for (Map.Entry<Integer, List<String>> folder : folders.entrySet()) {
+            int folderId = folder.getKey();
+            String folderName = folder.getValue().get(0);
+            String parentFolderName = folder.getValue().get(1);
+            String parentText = parentFolderName != null ? String.format("(Subfolder of %s)", parentFolderName) : "";
+            System.out.printf("(%d) %s %s%n", folderId, folderName, parentText);
+
         }
         System.out.print("Folder nr: ");
-        final int folderIndex = inputScanner.nextInt();
-        final int folderId = folders.get(folderIndexes.get(folderIndex));
+        final int folderId = inputScanner.nextInt();
 
+        // Asks user to choose tags repeatedly until they say no or there are no tags left
         System.out.println("Choose tags:");
         List<String> chosenTags = new ArrayList<>();
         List<String> validTags = new ArrayList<>(ALL_TAGS);
@@ -76,6 +87,10 @@ public class ConsoleUI {
                 break;
             validTags.remove(tag);
             chosenTags.add(tag);
+            System.out.println("Do you want to add more tags? (y/n)");
+            final String tagAnswer = inputScanner.next();
+            if (tagAnswer.equalsIgnoreCase("n"))
+                break;
         }
 
         System.out.println("Text:");
@@ -87,9 +102,16 @@ public class ConsoleUI {
             System.out.println("Something went wrong");
     }
 
+    /**
+     * Displays the given tags and lets the user choose one of them
+     *
+     * @param validTags the tags the user can choose from
+     *
+     * @return the user chosen tag
+     */
     private String getTag(List<String> validTags) {
         for (int i = 1; i <= validTags.size(); i++) {
-            System.out.println(String.format("(%d) %s", i, validTags.get(i - 1)));
+            System.out.printf("(%d) %s%n", i, validTags.get(i - 1));
         }
         try {
             final int tagIndex = inputScanner.nextInt() - 1;
@@ -102,6 +124,10 @@ public class ConsoleUI {
         return null;
     }
 
+    /**
+     * Asks the user for what to search for and displays a list of
+     * postNr for the matching posts
+     */
     public void searchPosts() {
         System.out.print("Search after: ");
         final String keyword = inputScanner.next();
@@ -109,6 +135,9 @@ public class ConsoleUI {
         System.out.println(postCtrl.searchPosts(ACTIVE_COURSE_CODE, keyword));
     }
 
+    /**
+     * Displays actions for the user and lets the user choose one of them
+     */
     public void chooseAction() {
         boolean isInstructor = statsCtrl.verifyInstructor(loggedInEmail);
 
@@ -140,10 +169,15 @@ public class ConsoleUI {
         }
     }
 
+    /**
+     * Asks the user for which thread they want to answer and for the answer text.
+     */
     private void createAnswerOn() {
         System.out.println("Select post:");
+
+        // Displays the postNr, Title and Folder for each thread that can be answered
         for(Map.Entry<Integer, List<String>> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
-            System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ "("+entry.getValue().get(1)+")");
+            System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ " ("+entry.getValue().get(1)+")");
         }
         System.out.print("Your choice: ");
         int answerOnPost = inputScanner.nextInt();
@@ -155,10 +189,17 @@ public class ConsoleUI {
             System.out.println("Something went wrong");
     }
 
+    /**
+     * Displays the course stats.
+     * That is the number of read and created posts by each user.
+     */
     public void viewStats() {
         this.statsCtrl.getUserStats(loggedInEmail, ACTIVE_COURSE_CODE);
     }
 
+    /**
+     * Displays an invalid choice message to the user
+     */
     private void invalidAction() {
         System.out.println("Not a valid choice!");
     }
@@ -166,8 +207,10 @@ public class ConsoleUI {
     public static void main(String[] args) {
         ConsoleUI consoleUI = new ConsoleUI();
 
+        // Asks the user to login repeatedly until they succeed
         while (!consoleUI.login());
 
+        // Asks the user to choose an action repeatedly
         while(true) consoleUI.chooseAction();
     }
 }
