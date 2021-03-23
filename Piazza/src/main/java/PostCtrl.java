@@ -11,7 +11,8 @@ public class PostCtrl extends DBConn {
   private final static String COMMENT = "Comment";
 
   /**
-   * generates a unique primary key for a Post
+   * generates a unique primary key for a Post. Gets the max primary key using sql query, and then adds 1.
+   * This ensures that the mrtjof always returns a unique primary key
    * @return the generated key
    * @throws SQLException if generation failed
    */
@@ -124,10 +125,8 @@ public class PostCtrl extends DBConn {
 
 
   /**
-   *
    * @param commentOn ID of which post the user wants to comment on
    * @param answerOn ID of which post the user wants to answer on
-   *
    * @param typeReply type of reply, needs to be comment or answer
    * @param text The text the user writes in the post
    * @param courseCode of the course the user wants to write a reply in
@@ -144,10 +143,13 @@ public class PostCtrl extends DBConn {
 
       statement.setInt(1, key);
 
+      //If the post is of type Answer, then the value for CommentOn in the database is set to java.sql.Types.NULL,
+
       if (commentOn == null)
         statement.setNull(2, java.sql.Types.NULL);
       else
         statement.setInt(2, commentOn);
+      //if the post is of type Comment, then the value for AnswerOn in the database is set to java.sql.Types.NULL
 
       if (answerOn == null)
         statement.setNull(3, java.sql.Types.NULL);
@@ -185,6 +187,8 @@ public class PostCtrl extends DBConn {
       // Checks if there already exists an answer for this type of user (Student/Instructor)
       boolean update = false;
       int updatePostNr = 0;
+
+      //Iterates as long as there the next element in the resultset exists
       while (resultSet.next()) {
         if (resultSet.getString("user_Type").equals(userType)) {
           update = true;
@@ -256,10 +260,10 @@ public class PostCtrl extends DBConn {
       statement.setString(2, wKeyword);
       statement.setString(3, wKeyword);
 
-      ResultSet rs = statement.executeQuery();
+      ResultSet resultSet = statement.executeQuery();
 
-      while (rs.next()) {
-        final int postNr = rs.getInt("PostNr");
+      while (resultSet.next()) {
+        final int postNr = resultSet.getInt("PostNr");
         result.add(postNr);
       }
 
@@ -314,8 +318,12 @@ public class PostCtrl extends DBConn {
       ResultSet resultSet = selectPost.executeQuery();
       while (resultSet.next()) {
         List<String> tmpList = new ArrayList<>();
+
+        //adds the Title to the list and the foldername
         tmpList.add(resultSet.getString("Title"));
         tmpList.add(resultSet.getString("folder_Name"));
+
+        //adds PostNr as key and the list containing Title and foldername as value
         posts.put(resultSet.getInt("PostNr"), tmpList);
       }
 
@@ -328,7 +336,6 @@ public class PostCtrl extends DBConn {
   }
 
   /**
-   *
    * @param email of the user
    * @return the user type (Student or Instructor)
    */
