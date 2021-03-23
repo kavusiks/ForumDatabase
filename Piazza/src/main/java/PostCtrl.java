@@ -8,7 +8,7 @@ import java.sql.*;
  */
 public class PostCtrl extends DBConn {
 
-  //Subclasses of Post
+  // All possible post types
   private final static String STARTING_POST = "StartingPost";
   private final static String REPLY_POST = "ReplyPost";
   private final static String FOLLOW_UP = "FollowUp";
@@ -16,7 +16,8 @@ public class PostCtrl extends DBConn {
   private final static String COMMENT = "Comment";
 
   /**
-   * Generates a unique primary key for a Post
+   * Generates a unique primary key for a Post. Gets the max primary key using sql query, and then adds 1.
+   * This ensures that the method always returns a unique primary key
    *
    * @return the generated key
    *
@@ -152,10 +153,13 @@ public class PostCtrl extends DBConn {
 
       statement.setInt(1, key);
 
+      //If the post is of type Answer, then the value for CommentOn in the database is set to java.sql.Types.NULL,
+
       if (commentOn == null)
         statement.setNull(2, java.sql.Types.NULL);
       else
         statement.setInt(2, commentOn);
+      //if the post is of type Comment, then the value for AnswerOn in the database is set to java.sql.Types.NULL
 
       if (answerOn == null)
         statement.setNull(3, java.sql.Types.NULL);
@@ -197,6 +201,8 @@ public class PostCtrl extends DBConn {
       // Checks if there already exists an answer for this type of user (Student/Instructor)
       boolean update = false;
       int updatePostNr = 0;
+
+      //Iterates as long as there the next element in the resultset exists
       while (resultSet.next()) {
         if (resultSet.getString("user_Type").equals(userType)) {
           update = true;
@@ -229,6 +235,7 @@ public class PostCtrl extends DBConn {
    * @param post_Text The text the user writes in the comment
    * @param courseCode of the course the user wants to write a comment for
    * @param Email Unique Email address of the user
+   *
    * @return A boolean for if the comment was created or not
    */
   public boolean createCommentOn(int commentOn, String post_Text, String courseCode, String Email) {
@@ -269,10 +276,10 @@ public class PostCtrl extends DBConn {
       statement.setString(2, wKeyword);
       statement.setString(3, wKeyword);
 
-      ResultSet rs = statement.executeQuery();
+      ResultSet resultSet = statement.executeQuery();
 
-      while (rs.next()) {
-        final int postNr = rs.getInt("PostNr");
+      while (resultSet.next()) {
+        final int postNr = resultSet.getInt("PostNr");
         result.add(postNr);
       }
 
@@ -287,8 +294,9 @@ public class PostCtrl extends DBConn {
   /**
    * @param courseCode of the course.
    *
-   * @return Map of the folders with the folders name and ID
-   */
+   * @return Map of the folders with the folders ID as key,
+   * and a list with list[0]: folder name and list[1]: parent folder name
+   **/
   public Map<Integer, List<String>> getFolders(String courseCode) {
     Map<Integer, List<String>> folders = new HashMap<>();
     final String query = "Select Sub.FolderID, Sub.folder_Name, Parent.folder_Name " +
@@ -321,7 +329,8 @@ public class PostCtrl extends DBConn {
   /**
    * @param CourseCode of the course
    *
-   * @return A Map of the created posts with the postNr and a list with list[0]: title and list[1]: post folder
+   * @return A Map of the created posts with the postNr
+   * and a list with list[0]: title and list[1]: post folder
    */
   public Map<Integer, List<String>> getPosts(String CourseCode) {
     Map<Integer, List<String>> posts = new HashMap<>();
@@ -332,8 +341,12 @@ public class PostCtrl extends DBConn {
       ResultSet resultSet = selectPost.executeQuery();
       while (resultSet.next()) {
         List<String> tmpList = new ArrayList<>();
+
+        //adds the Title to the list and the foldername
         tmpList.add(resultSet.getString("Title"));
         tmpList.add(resultSet.getString("folder_Name"));
+
+        //adds PostNr as key and the list containing Title and foldername as value
         posts.put(resultSet.getInt("PostNr"), tmpList);
       }
 
