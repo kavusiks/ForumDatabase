@@ -57,7 +57,7 @@ public class ConsoleUI {
     /***
      * Creates a new thread. Post data is taken in from console.
      */
-    public void createStartingPost() {
+    private void createStartingPost() {
         System.out.println("New Post:");
         System.out.print("Title: ");
         final String title = inputScanner.next();
@@ -125,14 +125,42 @@ public class ConsoleUI {
     }
 
     /**
+     * Asks the user for which thread they want to answer and for the answer text.
+     */
+    private void createAnswerOn() {
+        System.out.println("Select post:");
+
+        // Displays the postNr, Title and Folder for each thread that can be answered
+        for(Map.Entry<Integer, List<String>> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
+            System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ " ("+entry.getValue().get(1)+")");
+        }
+        System.out.print("Your choice: ");
+        int answerOnPost = inputScanner.nextInt();
+        System.out.println("Text:");
+        final String answerText = inputScanner.next();
+        if (postCtrl.createAnswerOn(answerOnPost, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
+            System.out.println("New answer created!");
+        else
+            System.out.println("Something went wrong");
+    }
+
+    /**
      * Asks the user for what to search for and displays a list of
      * postNr for the matching posts
      */
-    public void searchPosts() {
+    private void searchPosts() {
         System.out.print("Search after: ");
         final String keyword = inputScanner.next();
         System.out.println("Search results:");
         System.out.println(postCtrl.searchPosts(ACTIVE_COURSE_CODE, keyword));
+    }
+
+    /**
+     * Displays the course stats.
+     * That is the number of read and created posts by each user.
+     */
+    private void viewStats() {
+        this.statsCtrl.getUserStats(loggedInEmail, ACTIVE_COURSE_CODE);
     }
 
     /**
@@ -167,34 +195,6 @@ public class ConsoleUI {
         } catch (Exception e) {
             invalidAction();
         }
-    }
-
-    /**
-     * Asks the user for which thread they want to answer and for the answer text.
-     */
-    private void createAnswerOn() {
-        System.out.println("Select post:");
-
-        // Displays the postNr, Title and Folder for each thread that can be answered
-        for(Map.Entry<Integer, List<String>> entry: postCtrl.getPosts(ACTIVE_COURSE_CODE).entrySet()) {
-            System.out.println(entry.getKey()+": "+entry.getValue().get(0)+ " ("+entry.getValue().get(1)+")");
-        }
-        System.out.print("Your choice: ");
-        int answerOnPost = inputScanner.nextInt();
-        System.out.println("Text:");
-        final String answerText = inputScanner.next();
-        if (postCtrl.createAnswerOn(answerOnPost, answerText, ACTIVE_COURSE_CODE, loggedInEmail))
-            System.out.println("New answer created!");
-        else
-            System.out.println("Something went wrong");
-    }
-
-    /**
-     * Displays the course stats.
-     * That is the number of read and created posts by each user.
-     */
-    public void viewStats() {
-        this.statsCtrl.getUserStats(loggedInEmail, ACTIVE_COURSE_CODE);
     }
 
     /**

@@ -202,7 +202,7 @@ public class PostCtrl extends DBConn {
       boolean update = false;
       int updatePostNr = 0;
 
-      //Iterates as long as there the next element in the resultset exists
+      //Iterates as long as there the next element in the result set exists
       while (resultSet.next()) {
         if (resultSet.getString("user_Type").equals(userType)) {
           update = true;
@@ -342,11 +342,11 @@ public class PostCtrl extends DBConn {
       while (resultSet.next()) {
         List<String> tmpList = new ArrayList<>();
 
-        //adds the Title to the list and the foldername
+        // Adds the title to the list and the folder name
         tmpList.add(resultSet.getString("Title"));
         tmpList.add(resultSet.getString("folder_Name"));
 
-        //adds PostNr as key and the list containing Title and foldername as value
+        // Adds PostNr as key and the list containing the title and folder name as value
         posts.put(resultSet.getInt("PostNr"), tmpList);
       }
 
