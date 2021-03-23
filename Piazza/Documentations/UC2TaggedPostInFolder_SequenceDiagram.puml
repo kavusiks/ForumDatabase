@@ -1,0 +1,21 @@
+@startuml
+actor Student1
+Student1 -> piazzaForum.ConsoleUI: createStartingPost()
+piazzaForum.ConsoleUI -> Student1: "Title: "
+Student1 --> piazzaForum.ConsoleUI: "Exam fall 2008 question 1"
+piazzaForum.ConsoleUI -> piazzaForum.PostCtrl: getFolders("TDT4145")
+piazzaForum.PostCtrl --> piazzaForum.ConsoleUI: Map<FolderID, List<folder_name, parentFolder_name>
+piazzaForum.ConsoleUI -> Student1: "Choose folder: "
+piazzaForum.ConsoleUI -> Student1: //Shows folder options (with their parent folders for subfolders)//
+Student1 --> piazzaForum.ConsoleUI: "1"  //(Input for option: "Exam")//
+piazzaForum.ConsoleUI -> Student1: "Choose tags: "
+piazzaForum.ConsoleUI -> piazzaForum.ConsoleUI: getTag()
+piazzaForum.ConsoleUI -> Student1: //Shows tags option//
+Student1 --> piazzaForum.ConsoleUI: "1" //(Input for option: "Question"//
+piazzaForum.ConsoleUI -> Student1: "Text: "
+Student1 --> piazzaForum.ConsoleUI: "Is this correct way to....."
+piazzaForum.ConsoleUI -> piazzaForum.PostCtrl: createStartingPost(title, folderId, text, courseCode, email, chosenTags)
+piazzaForum.PostCtrl -> piazzaForum.PostCtrl: createTaggedStartingPost(key, tags)
+piazzaForum.PostCtrl --> piazzaForum.ConsoleUI: true
+piazzaForum.ConsoleUI --> Student1: "New post created!"
+@enduml

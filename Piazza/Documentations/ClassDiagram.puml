@@ -1,30 +1,30 @@
 @startuml
 
-abstract class DBConn
-class UserAuthCtrl
-class PostCtrl
-class StatsCtrl
-class ConsoleUI
+abstract class piazzaForum.DBConn
+class piazzaForum.UserAuthCtrl
+class piazzaForum.PostCtrl
+class piazzaForum.StatsCtrl
+class piazzaForum.ConsoleUI
 
-DBConn <|-- UserAuthCtrl
-DBConn <|-- StatsCtrl
-DBConn <|-- PostCtrl
-UserAuthCtrl"authCtrl: 1"<--ConsoleUI
-PostCtrl"postCtrl: 1" <--ConsoleUI
-StatsCtrl"statsCtrl: 1"<--ConsoleUI
+piazzaForum.DBConn <|-- piazzaForum.UserAuthCtrl
+piazzaForum.DBConn <|-- piazzaForum.StatsCtrl
+piazzaForum.DBConn <|-- piazzaForum.PostCtrl
+piazzaForum.UserAuthCtrl"authCtrl: 1"<--piazzaForum.ConsoleUI
+piazzaForum.PostCtrl"postCtrl: 1" <--piazzaForum.ConsoleUI
+piazzaForum.StatsCtrl"statsCtrl: 1"<--piazzaForum.ConsoleUI
 
 
 
-abstract class DBConn {
+abstract class piazzaForum.DBConn {
 #Connection conn;
 #connect()
 }
 
-class UserAuthCtrl {
+class piazzaForum.UserAuthCtrl {
 +login(String, String)
 }
 
-class PostCtrl {
+class piazzaForum.PostCtrl {
 -{static} String STARTING_POST
 -{static} String REPLY_POST
 -{static} String FOLLOW_UP
@@ -46,14 +46,14 @@ class PostCtrl {
 +getUserType(String)
 }
 
-class StatsCtrl {
+class piazzaForum.StatsCtrl {
 +verifyInstructor(String)
 -verifyUserInCourse(String, String)
 -printStats(String)
 +getUserStats(String, String)
 }
 
-class ConsoleUI {
+class piazzaForum.ConsoleUI {
 -String loggedInEmail
 -{static}ACTIVE_COURSE_CODE
 -List<String> ALL_TAGS

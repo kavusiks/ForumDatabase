@@ -1,0 +1,10 @@
+@startuml
+actor Student1
+Student1 -> piazzaForum.ConsoleUI: searchPost()
+piazzaForum.ConsoleUI -> Student1: "Search after: "
+Student1 --> piazzaForum.ConsoleUI: "WAL"
+piazzaForum.ConsoleUI --> Student1: "Search results: "
+piazzaForum.ConsoleUI -> piazzaForum.PostCtrl: searchPosts(courseCode, keyword)
+piazzaForum.PostCtrl --> piazzaForum.ConsoleUI: List with the corresponding postNrs
+piazzaForum.ConsoleUI --> Student1: //Shows the list//
+@enduml

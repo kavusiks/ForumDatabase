@@ -73,7 +73,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ConsoleUI</mainClass>
+                            <mainClass>piazzaForum.ConsoleUI</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -84,7 +84,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ConsoleUI</mainClass>
+                            <mainClass>piazzaForum.ConsoleUI</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
