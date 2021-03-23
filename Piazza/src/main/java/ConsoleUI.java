@@ -25,6 +25,10 @@ public class ConsoleUI {
     }
 
 
+    /***
+     * Takes in email and password from console and tries to login.
+     * @return true if user was logged in, false otherwise
+     */
     public boolean login() {
         System.out.println("Login to Piazza:");
         System.out.print("Email: ");
@@ -41,12 +45,17 @@ public class ConsoleUI {
         return false;
     }
 
+    /***
+     * Creates a new thread. Post data is taken in from console.
+     */
     public void createStartingPost() {
         System.out.println("New Post:");
         System.out.print("Title: ");
         final String title = inputScanner.next();
 
         System.out.println("Choose folder: ");
+
+        // Gets all the course folders and displays them with indexes
         Map<String, Integer> folders = postCtrl.getFolders(ACTIVE_COURSE_CODE);
         Map<Integer, String> folderIndexes = new HashMap<>();
         int i = 1;

@@ -1,10 +1,10 @@
-/**
- *
- * @author
- */
 import java.sql.*;
 import java.util.Properties;
 public abstract class DBConn {
+  /**
+   * An abstract class that contains a method for connecting to the database.
+   * Every controller class extends from this class.
+   */
   protected Connection conn;
   protected void connect() {
     try {
