@@ -4,9 +4,9 @@ Student1 -> ConsoleUI: createStartingPost()
 ConsoleUI -> Student1: "Title: "
 Student1 --> ConsoleUI: "Exam fall 2008 question 1"
 ConsoleUI -> PostCtrl: getFolders("TDT4145")
-PostCtrl --> ConsoleUI: Map<"folder_Name", FolderID>
+PostCtrl --> ConsoleUI: Map<FolderID, List<folder_name, parentFolder_name>
 ConsoleUI -> Student1: "Choose folder: "
-ConsoleUI -> Student1: //Shows folder options//
+ConsoleUI -> Student1: //Shows folder options (with their parent folders for subfolders)//
 Student1 --> ConsoleUI: "1"  //(Input for option: "Exam")//
 ConsoleUI -> Student1: "Choose tags: "
 ConsoleUI -> ConsoleUI: getTag()

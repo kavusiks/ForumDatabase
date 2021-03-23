@@ -59,13 +59,13 @@ class ConsoleUI {
 -List<String> ALL_TAGS
 -Scanner inputScanner
 +login()
-+createStartingPost()
+-createStartingPost()
 -getTag(List<String>)
-+searchPosts()
-+chooseAction()
+-searchPosts()
 -createAnswerOn()
-+viewStats()
+-viewStats()
 -invalidAction()
++chooseAction()
 +{static}main(String[])
 }
 
