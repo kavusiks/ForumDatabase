@@ -10,14 +10,14 @@ rectangle PiazzaForum {
 (Se statistikk) as (uc5)
 
   Student -- (uc1)
-  Student - (uc2)
-  Student - (uc3)
-  Student - (uc4)
+  Student -- (uc2)
+  Student -- (uc3)
+  Student -- (uc4)
   (uc1) -- Instructor
-  (uc2) - Instructor
-  (uc3) - Instructor
-  (uc4) - Instructor
-  (uc5) - Instructor
+  (uc2) -- Instructor
+  (uc3) -- Instructor
+  (uc4) -- Instructor
+  (uc5) -- Instructor
 }
 
 @enduml

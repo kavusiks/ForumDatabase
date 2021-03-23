@@ -48,20 +48,6 @@
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-compiler-api:2.8.4" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-compiler-manager:2.8.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.codehaus.plexus:plexus-compiler-javac:2.8.4" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:mac:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:mac:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:mac:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-base:mac:16-ea+5" level="project" />
-    <orderEntry type="library" name="Maven: org.junit.jupiter:junit-jupiter-engine:5.7.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apiguardian:apiguardian-api:1.1.0" level="project" />
-    <orderEntry type="library" name="Maven: org.junit.platform:junit-platform-engine:1.7.0" level="project" />
-    <orderEntry type="library" name="Maven: org.opentest4j:opentest4j:1.2.0" level="project" />
-    <orderEntry type="library" name="Maven: org.junit.platform:junit-platform-commons:1.7.0" level="project" />
-    <orderEntry type="library" name="Maven: org.junit.jupiter:junit-jupiter-api:5.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.plugins:maven-surefire-plugin:maven-plugin:3.0.0-M5" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.surefire:maven-surefire-common:3.0.0-M5" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.surefire:surefire-api:3.0.0-M5" level="project" />

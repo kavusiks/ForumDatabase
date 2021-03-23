@@ -10,8 +10,10 @@ public class UserAuthCtrl extends DBConn {
 
   /***
    * Checks if there exists a user with the given email and password.
-   * @param email
-   * @param password
+   *
+   * @param email user's email
+   * @param password user's password
+   *
    * @return true if a matching user was found, false otherwise.
    */
   public boolean login(String email, String password) {
