@@ -17,7 +17,7 @@ piazzaForum.StatsCtrl"statsCtrl: 1"<--piazzaForum.ConsoleUI
 
 abstract class piazzaForum.DBConn {
 #Connection conn;
-#connect()
++connect()
 }
 
 class piazzaForum.UserAuthCtrl {
