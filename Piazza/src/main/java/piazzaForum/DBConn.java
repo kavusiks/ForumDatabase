@@ -29,6 +29,18 @@ public abstract class DBConn {
       throw new RuntimeException("Unable to connect", e);
     }
   }
+
+  /**
+   * Disconnects from the database.
+   */
+  public void disconnect() {
+    try {
+      conn.close();
+    } catch (Exception e)
+    {
+      throw new RuntimeException("Unable to connect", e);
+    }
+  }
 }
 
 

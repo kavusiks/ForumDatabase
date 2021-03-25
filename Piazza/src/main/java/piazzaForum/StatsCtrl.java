@@ -59,7 +59,7 @@ public class StatsCtrl extends DBConn {
         query_result_user = result.getString("Email");
         query_result_course = result.getString("CourseCode");
       }
-      if (query_result_user.equals(email) && query_result_course.equals(course)) {
+      if (query_result_user.equalsIgnoreCase(email) && query_result_course.equalsIgnoreCase(course)) {
         //System.out.println("User in course verified");
         return true;
       }

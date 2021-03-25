@@ -58,6 +58,7 @@ class piazzaForum.ConsoleUI {
 -{static}ACTIVE_COURSE_CODE
 -List<String> ALL_TAGS
 -Scanner inputScanner
+-resetScanner()
 +login()
 -createStartingPost()
 -getTag(List<String>)

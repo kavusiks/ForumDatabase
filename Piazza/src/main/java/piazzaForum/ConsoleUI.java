@@ -1,5 +1,6 @@
 package piazzaForum;
 
+import java.sql.SQLOutput;
 import java.util.*;
 
 /**
@@ -33,9 +34,24 @@ public class ConsoleUI {
         resetScanner();
     }
 
+    /**
+     * Resets the scanner
+     */
     private void resetScanner() {
+        if (inputScanner != null) inputScanner.close();
         inputScanner = new Scanner(System.in);
         inputScanner.useDelimiter(System.lineSeparator());
+    }
+
+    /**
+     * Terminate all connections and closes the inputScanner.
+     */
+    private void terminate() {
+        System.out.println("Applications terminates...");
+        inputScanner.close();
+        authCtrl.disconnect();
+        postCtrl.disconnect();
+        statsCtrl.disconnect();
     }
 
     /***
@@ -87,15 +103,15 @@ public class ConsoleUI {
         List<String> chosenTags = new ArrayList<>();
         List<String> validTags = new ArrayList<>(ALL_TAGS);
         while(validTags.size() != 0) {
+            System.out.println("Do you want to add tag? (y/n)");
+            final String tagAnswer = inputScanner.next();
+            if (!tagAnswer.equalsIgnoreCase("y"))
+                break;
             String tag = getTag(validTags);
             if (tag == null)
                 break;
             validTags.remove(tag);
             chosenTags.add(tag);
-            System.out.println("Do you want to add more tags? (y/n)");
-            final String tagAnswer = inputScanner.next();
-            if (tagAnswer.equalsIgnoreCase("n"))
-                break;
         }
 
         System.out.println("Text:");
@@ -172,7 +188,7 @@ public class ConsoleUI {
     /**
      * Displays actions for the user and lets the user choose one of them
      */
-    public void chooseAction() {
+    public boolean chooseAction() {
         boolean isInstructor = statsCtrl.verifyInstructor(loggedInEmail);
 
         System.out.println("Choose action:");
@@ -182,10 +198,16 @@ public class ConsoleUI {
         if (isInstructor) {
             System.out.println("(4) View stats");
         }
+        System.out.println("(0) Quit");
         System.out.print("Your choice: ");
         try {
             final int action = inputScanner.nextInt();
-            if (action == 1)
+            if (action == 0){
+
+                terminate();
+                return false;
+            }
+            else if (action == 1)
                 createStartingPost();
             else if (action == 2)
                 searchPosts();
@@ -199,6 +221,7 @@ public class ConsoleUI {
             resetScanner();
             invalidAction();
         }
+        return true;
     }
 
     /**
@@ -215,6 +238,7 @@ public class ConsoleUI {
         while (!consoleUI.login());
 
         // Asks the user to choose an action repeatedly
-        while(true) consoleUI.chooseAction();
+        while(consoleUI.chooseAction());
+
     }
 }
