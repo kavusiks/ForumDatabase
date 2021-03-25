@@ -1,0 +1,11 @@
+@startuml
+actor Student1
+Student1 -> piazzaForum.ConsoleUI: login()
+piazzaForum.ConsoleUI -> Student1: "Email: "
+Student1 --> piazzaForum.ConsoleUI: "OlaNordmann@gmail.com"
+piazzaForum.ConsoleUI -> Student1: "Passord: "
+Student1 --> piazzaForum.ConsoleUI: "bestePassord123"
+piazzaForum.ConsoleUI -> piazzaForum.UserAuthCtrl: login(email, password)
+piazzaForum.UserAuthCtrl--> piazzaForum.ConsoleUI: true
+piazzaForum.ConsoleUI --> Student1: "Successfully logged in!"
+@enduml

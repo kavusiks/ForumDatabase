@@ -1,3 +1,7 @@
+package piazzaForum;
+
+import piazzaForum.DBConn;
+
 import java.sql.Date;
 import java.util.*;
 import java.sql.*;

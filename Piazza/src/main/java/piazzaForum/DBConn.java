@@ -1,3 +1,5 @@
+package piazzaForum;
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -14,7 +16,7 @@ public abstract class DBConn {
   /**
    * Connects to the database.
    */
-  protected void connect() {
+  public void connect() {
     try {
       Class.forName("com.mysql.cj.jdbc.Driver");
       // Properties for user and password.
