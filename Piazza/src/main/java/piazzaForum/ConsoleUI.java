@@ -34,6 +34,10 @@ public class ConsoleUI {
         inputScanner.useDelimiter(System.lineSeparator());
     }
 
+    private void clearScannerBuffer() {
+        inputScanner.reset();
+        inputScanner.useDelimiter(System.lineSeparator());
+    }
 
     /***
      * Takes in email and password from console and tries to login.
@@ -121,7 +125,7 @@ public class ConsoleUI {
                 return validTags.get(tagIndex);
             }
         } catch (Exception e) {
-            inputScanner.next();
+            clearScannerBuffer();
             return null;
         }
         return null;
@@ -193,7 +197,7 @@ public class ConsoleUI {
             else
                 invalidAction();
         } catch (Exception e) {
-            inputScanner.next();
+            clearScannerBuffer();
             invalidAction();
         }
     }
