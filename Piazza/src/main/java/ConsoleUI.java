@@ -119,6 +119,7 @@ public class ConsoleUI {
                 return validTags.get(tagIndex);
             }
         } catch (Exception e) {
+            inputScanner.next();
             return null;
         }
         return null;
@@ -183,16 +184,14 @@ public class ConsoleUI {
                 createStartingPost();
             else if (action == 2)
                 searchPosts();
-            else if (action == 3) {
+            else if (action == 3)
                 createAnswerOn();
-            }
-            else if (action == 4 && isInstructor) {
+            else if (action == 4 && isInstructor)
                 viewStats();
-            }
-            else {
+            else
                 invalidAction();
-            }
         } catch (Exception e) {
+            inputScanner.next();
             invalidAction();
         }
     }
