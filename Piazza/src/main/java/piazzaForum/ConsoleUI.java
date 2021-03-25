@@ -12,7 +12,7 @@ public class ConsoleUI {
     private final PostCtrl postCtrl;
     private final StatsCtrl statsCtrl;
 
-    private final Scanner inputScanner;
+    private Scanner inputScanner;
 
     private final String ACTIVE_COURSE_CODE = "TDT4145";
     // Predefined tags for a StartingPost
@@ -30,12 +30,11 @@ public class ConsoleUI {
         postCtrl.connect();
         statsCtrl.connect();
 
-        inputScanner = new Scanner(System.in);
-        inputScanner.useDelimiter(System.lineSeparator());
+        resetScanner();
     }
 
-    private void clearScannerBuffer() {
-        inputScanner.reset();
+    private void resetScanner() {
+        inputScanner = new Scanner(System.in);
         inputScanner.useDelimiter(System.lineSeparator());
     }
 
@@ -125,7 +124,7 @@ public class ConsoleUI {
                 return validTags.get(tagIndex);
             }
         } catch (Exception e) {
-            clearScannerBuffer();
+            resetScanner();
             return null;
         }
         return null;
@@ -197,7 +196,7 @@ public class ConsoleUI {
             else
                 invalidAction();
         } catch (Exception e) {
-            clearScannerBuffer();
+            resetScanner();
             invalidAction();
         }
     }
