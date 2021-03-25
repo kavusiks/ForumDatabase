@@ -38,7 +38,6 @@ public class ConsoleUI {
      * Resets the scanner
      */
     private void resetScanner() {
-        if (inputScanner != null) inputScanner.close();
         inputScanner = new Scanner(System.in);
         inputScanner.useDelimiter(System.lineSeparator());
     }
@@ -95,8 +94,15 @@ public class ConsoleUI {
             System.out.printf("(%d) %s %s%n", folderId, folderName, parentText);
 
         }
-        System.out.print("Folder nr: ");
-        final int folderId = inputScanner.nextInt();
+        int folderId;
+        while (true) {
+            System.out.print("Folder nr: ");
+            folderId = inputScanner.nextInt();
+            if (!folders.keySet().contains(folderId))
+                System.out.println("Choose one of the given folders!");
+            else
+                break;
+        }
 
         // Asks user to choose tags repeatedly until they say no or there are no tags left
         System.out.println("Choose tags:");
@@ -203,7 +209,6 @@ public class ConsoleUI {
         try {
             final int action = inputScanner.nextInt();
             if (action == 0){
-
                 terminate();
                 return false;
             }
